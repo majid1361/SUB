@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   // ==========================================
   const users = {
     "majid": "2027-09-01",  // کاربرها 
-  //  "vahid": "2027-09-01",
+    "vahid": "2027-09-01",
   };
 
   // بررسی وجود کاربر
