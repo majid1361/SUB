@@ -55,16 +55,18 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
 
-    // ۴. تبدیل تاریخ به فرمت استاندارد (Unix Timestamp) برای اپلیکیشن‌ها
+    // ۴. تبدیل تاریخ به فرمت استاندارد (Unix Timestamp)
     const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
 
-    // ۵. تنظیم هدرهای استاندارد (نمایش در کلاینت‌هایی مثل V2Box, Hiddify, v2rayNG)
+    // ۵. تنظیم هدرهای استاندارد هیدیفای و بقیه کلاینت‌ها
+    const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت برای فعال شدن کارت در Hiddify
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Subscription-Userinfo", `expire=${expireTimestamp}`);
-    res.setHeader("Profile-Update-Interval", "12"); // پیشنهاد به اپ برای آپدیت هر ۱۲ ساعت
+    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Profile-Title", `Sub: ${user}`);
+    res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // ۶. ساخت کانفیگ نمایشی اول لیست برای دیدن روزهای باقی‌مانده با یک نگاه
+    // ۶. ساخت کانفیگ متنی اول لیست برای نمایش سریع روزهای مانده
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
     // ۷. ترکیب و ارسال خروجی
