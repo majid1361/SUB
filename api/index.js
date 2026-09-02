@@ -5,12 +5,13 @@ export default async function handler(req, res) {
   // 📋 دیتابیس کاربران و تاریخ انقضا (سال-ماه-روز)
   // ==========================================
   const users = {
-    "majid": "2030-01-01",
-    "tohid": "2030-01-01",
-    "roja": "2030-01-01",
+    "01",
     "vida": "2030-01-01",
     "mehrang": "2030-01-01",
     "user1": "2027-09-01",
+    "user2": "2027-09-01",
+    "user3": "2027-09-01",
+    "user7-09-01",
     "user2": "2027-09-01",
     "user3": "2027-09-01",
     "user4": "2027-09-01",
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
     return res.status(403).send("⛔ اعتبار اشتراک شما به پایان رسیده است.");
   }
 
-  // آدرس سورس کانفیگ‌ها در گیت‌هاب (به همراه مکانیزم ضد کش)
+  // آدرس سورس کانفیگ‌ها در گیت‌هاب (ضد کش)
   const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
 
   try {
@@ -55,16 +56,20 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
 
-    // ۴. تبدیل تاریخ به فرمت استاندارد (Unix Timestamp) برای اپلیکیشن‌ها
+    // ۴. تبدیل تاریخ به Unix Timestamp
     const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
 
-    // ۵. تنظیم هدرهای استاندارد (نمایش در کلاینت‌هایی مثل V2Box, Hiddify, v2rayNG)
+    // ۵. تنظیم هدرهای کامل برای سازگاری ۱۰۰٪ با Hiddify
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Subscription-Userinfo", `expire=${expireTimestamp}`);
-    res.setHeader("Profile-Update-Interval", "12"); // پیشنهاد به اپ برای آپدیت هر ۱۲ ساعت
+    
+    // فرمت کامل هدر برای فعال شدن باکس اطلاعات در Hiddify
+    const totalBytes = 1000 * 1024 * 1024 * 1024; // 1000 GB
+    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Profile-Title", `Sub: ${user}`);
+    res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // ۶. ساخت کانفیگ نمایشی اول لیست برای دیدن روزهای باقی‌مانده با یک نگاه
+    // ۶. ساخت کانفیگ نمایشی اول لیست
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
     // ۷. ترکیب و ارسال خروجی
