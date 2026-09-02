@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     return res.status(403).send("⛔ اعتبار اشتراک شما به پایان رسیده است.");
   }
 
-  // آدرس سورس کانفیگ‌ها در گیت‌هاب (به همراه مکانیزم ضد کش)
+  // آدرس سورس کانفیگ‌ها در گیت‌هاب (ضد کش)
   const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
 
   try {
@@ -55,18 +55,17 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
 
-    // ۴. تبدیل تاریخ به فرمت استاندارد (Unix Timestamp)
+    // ۴. تبدیل تاریخ به Unix Timestamp
     const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
 
-    // ۵. تنظیم هدرهای استاندارد هیدیفای و بقیه کلاینت‌ها
-    const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت برای فعال شدن کارت در Hiddify
+    // ۵. تنظیم هدر استاندارد (فقط expire بدون حجم)
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Subscription-Userinfo", `expire=${expireTimestamp}`);
     res.setHeader("Profile-Title", `Sub: ${user}`);
     res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // ۶. ساخت کانفیگ متنی اول لیست برای نمایش سریع روزهای مانده
+    // ۶. ساخت کانفیگ نمایشی اول لیست برای نمایش سریع روزهای مانده
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
     // ۷. ترکیب و ارسال خروجی
