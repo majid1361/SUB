@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     // ۵. تنظیم هدرهای استاندارد هیدیفای و بقیه کلاینت‌ها
     const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت برای فعال شدن کارت در Hiddify
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=0; expire=${expireTimestamp}`);
     res.setHeader("Profile-Title", `Sub: ${user}`);
     res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
