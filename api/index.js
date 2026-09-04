@@ -41,16 +41,24 @@ export default async function handler(req, res) {
     return res.status(403).send("⛔ اعتبار اشتراک شما به پایان رسیده است.");
   }
 
-  // آدرس سورس کانفیگ‌ها در گیت‌هاب (به همراه مکانیزم ضد کش)
-  const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
+  // آدرس سورس مخزن در گیت‌هاب
+  const GITHUB_BASE_URL = "https://raw.githubusercontent.com/majid1361/SUB/main";
+  const fetchHeaders = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache'
+  };
 
   try {
-    const response = await fetch(`${GITHUB_RAW_URL}?t=${Date.now()}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
+    // اول تلاش برای دریافت فایل اختصاصی کاربر (مثلاً sub-roja.txt)
+    let response = await fetch(`${GITHUB_BASE_URL}/sub-${user}.txt?t=${Date.now()}`, {
+      headers: fetchHeaders
     });
+
+    // اگر فایل اختصاصی وجود نداشت، فایل عمومی sub.-8");
+    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total_URL}/sub.txt?t=${Date.now()}`, {
+        headers: fetchHeaders
+      });
+    }
 
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
@@ -64,7 +72,9 @@ export default async function handler(req, res) {
     res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
     res.setHeader("Profile-Title", `Sub: ${user}`);
     res.setHeader("Profile-Update-Interval", "12");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
 
     // ۶. ساخت کانفیگ متنی اول لیست برای نمایش سریع روزهای مانده
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
