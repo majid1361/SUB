@@ -1,9 +1,7 @@
 export default async function handler(req, res) {
   const { user } = req.query;
 
-  // ==========================================
-  // 📋 دیتابیس کاربران و تاریخ انقضا (سال-ماه-روز)
-  // ==========================================
+  // ۱. دیتابیس کاربران و تاریخ انقضا (سال-ماه-روز)
   const users = {
     "majid": "2030-01-01",
     "tohid": "2030-01-01",
@@ -22,10 +20,10 @@ export default async function handler(req, res) {
     "user10": "2027-09-01"
   };
 
-  // ۱. بررسی وجود کاربر
+  // اگر کاربر توی لیست نبود
   if (!user || !users[user]) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    return res.status(403).send("⚠️ کاربر یافت نشد یا دسترسی غیرمجاز است.");
+    return res.status(403).send("⚠️ User not found or unauthorized.");
   }
 
   // ۲. محاسبه تاریخ و روزهای باقی‌مانده
@@ -34,15 +32,31 @@ export default async function handler(req, res) {
   const today = new Date();
   const diffTime = expireDate - today;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
+  const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت
 
-  // ۳. بررسی اعتبار زمانی
+  // =======================================================
+  // ⛔ ۳. بررسی اعتبار زمانی (وقتی شد ۰ روز یا منفی)
+  // =======================================================
   if (diffDays <= 0) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    return res.status(403).send("⛔ اعتبار اشتراک شما به پایان رسیده است.");
+    // ارسال مشخصات انقضا به کلاینت
+    res.setHeader("Subscription-Userinfo", `upload=0; download=${totalBytes}; total=${totalBytes}; expire=${expireTimestamp}`);
+    // تغییر عنوان اشتراک در بالای برنامه به حالت منقضی
+    res.setHeader("Profile-Title", `⛔ EXPIRED | ${user}`);
+    res.setHeader("Profile-Update-Interval", "1");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
+    // برگشت با کد 200 و بدون کانفیگ -> باعث میشه لیست سرورهای گوشی خالی بشه
+    return res.status(200).send("");
   }
 
-  // آدرس پایه ریپازیتوری در گیت‌هاب
-  const REPO_BASE = "https://raw.githubusercontent.com/majid1361/SUB/main";
+  // =======================================================
+  // 🟢 ۴. کاربر هنوز اعتبار دارد -> دریافت و ارسال کانفیگ‌ها
+  // =======================================================
+  const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
 
   try {
     const fetchHeaders = {
@@ -50,37 +64,25 @@ export default async function handler(req, res) {
       'Pragma': 'no-cache'
     };
 
-    // ابتدا بررسی فایل اختصاصی کاربر (مثلاً majid.txt)
-    let response = await fetch(`${REPO_BASE}/${user}.txt?t=${Date.now()}`, { headers: fetchHeaders });
-
-    // اگر فایل اختصاصی نبود، خواندن فایل عمومی sub.txt
-    if (!response.ok) {
-      response = await fetch(`${REPO_BASE}/sub.txt?t=${Date.now()}`, { headers: fetchHeaders });
-    }
-
+    const response = await fetch(`${GITHUB_RAW_URL}?t=${Date.now()}`, { headers: fetchHeaders });
     if (!response.ok) throw new Error("Fetch Error");
+    
     const configs = await response.text();
 
-    // ۴. تبدیل تاریخ به فرمت استاندارد (Unix Timestamp)
-    const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
-
-    // ۵. تنظیم هدرهای استاندارد هیدیفای و بقیه کلاینت‌ها
-    const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت برای فعال شدن کارت در Hiddify
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
     res.setHeader("Profile-Title", `Sub: ${user}`);
     res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // ۶. ساخت کانفیگ متنی اول لیست برای نمایش سریع روزهای مانده
+    // کانفیگ مجازی برای روزشمار بالای لیست
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
-    // ۷. ترکیب و ارسال خروجی
     const finalOutput = `${infoConfig}\n${configs.trim()}`;
     return res.status(200).send(finalOutput);
 
   } catch (error) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    return res.status(500).send("خطا در برقراری ارتباط با سرور");
+    return res.status(500).send("Error fetching configs from source.");
   }
 }
