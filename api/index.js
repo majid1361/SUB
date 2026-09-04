@@ -3,7 +3,7 @@ export default async function handler(req, res) {
 
   // ۱. دیتابیس کاربران و تاریخ انقضا (سال-ماه-روز)
   const users = {
-    "majid": "2024-01-01",
+    "majid": "2030-01-01",
     "tohid": "2030-01-01",
     "roja": "2030-01-01",
     "vida": "2030-01-01",
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     "user10": "2027-09-01"
   };
 
-  // اگر کاربر توی لیست نبود
+  // بررسی وجود نام کاربری در سیستم
   if (!user || !users[user]) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     return res.status(403).send("⚠️ User not found or unauthorized.");
@@ -36,21 +36,21 @@ export default async function handler(req, res) {
   const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت
 
   // =======================================================
-  // ⛔ ۳. بررسی اعتبار زمانی (وقتی شد ۰ روز یا منفی)
+  // ⛔ ۳. بررسی اعتبار زمانی (منقضی شده: ۰ روز یا کمتر)
   // =======================================================
   if (diffDays <= 0) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    // ارسال مشخصات انقضا به کلاینت
     res.setHeader("Subscription-Userinfo", `upload=0; download=${totalBytes}; total=${totalBytes}; expire=${expireTimestamp}`);
-    // تغییر عنوان اشتراک در بالای برنامه به حالت منقضی
     res.setHeader("Profile-Title", `⛔ EXPIRED | ${user}`);
     res.setHeader("Profile-Update-Interval", "1");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, proxy-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 
-    // برگشت با کد 200 و بدون کانفیگ -> باعث میشه لیست سرورهای گوشی خالی بشه
-    return res.status(200).send("");
+    // ارسال کانفیگ نمایشی انقضا برای پاک شدن تمام سرورهای قبلی
+    const expiredConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%9B%94%EF%B8%8F%20EXPIRED`;
+
+    return res.status(200).send(expiredConfig);
   }
 
   // =======================================================
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // کانفیگ مجازی برای روزشمار بالای لیست
+    // کانفیگ مجازی برای نمایش روزهای باقی‌مانده بالای لیست
     const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
     const finalOutput = `${infoConfig}\n${configs.trim()}`;
