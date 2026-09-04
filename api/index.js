@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     "user10": "2027-09-01"
   };
 
-  // بررسی وجود نام کاربری در سیستم
+  // اگر کاربر پیدا نشد
   if (!user || !users[user]) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     return res.status(403).send("⚠️ User not found or unauthorized.");
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   const totalBytes = 1000 * 1024 * 1024 * 1024; // ۱۰۰۰ گیگابایت
 
   // =======================================================
-  // ⛔ ۳. بررسی اعتبار زمانی (منقضی شده: ۰ روز یا کمتر)
+  // ⛔ ۳. اگر اشتراک منقضی شده باشد -> فقط ارسال یک کانفیگ مجازی انقضا
   // =======================================================
   if (diffDays <= 0) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -47,14 +47,14 @@ export default async function handler(req, res) {
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
 
-    // ارسال کانفیگ نمایشی انقضا برای پاک شدن تمام سرورهای قبلی
-    const expiredConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%9B%94%EF%B8%8F%20EXPIRED`;
+    // تک کانفیگ مجازی استاندارد که فقط پیام انقضا رو نشون میده
+    const expiredVirtualConfig = `trojan://expired@1.1.1.1:443?security=tls&sni=cloudflare.com#%E2%9B%94%EF%B8%8F%20EXPIRED`;
 
-    return res.status(200).send(expiredConfig);
+    return res.status(200).send(expiredVirtualConfig);
   }
 
   // =======================================================
-  // 🟢 ۴. کاربر هنوز اعتبار دارد -> دریافت و ارسال کانفیگ‌ها
+  // 🟢 ۴. کاربر معتبر است -> دریافت سرورها از گیت‌هاب + روزشمار مجازی
   // =======================================================
   const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
 
@@ -75,10 +75,10 @@ export default async function handler(req, res) {
     res.setHeader("Profile-Update-Interval", "12");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // کانفیگ مجازی برای نمایش روزهای باقی‌مانده بالای لیست
-    const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
+    // کانفیگ مجازی روزشمار بالای لیست
+    const infoVirtualConfig = `trojan://info@1.1.1.1:443?security=tls&sni=cloudflare.com#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
 
-    const finalOutput = `${infoConfig}\n${configs.trim()}`;
+    const finalOutput = `${infoVirtualConfig}\n${configs.trim()}`;
     return res.status(200).send(finalOutput);
 
   } catch (error) {
