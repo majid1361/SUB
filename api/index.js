@@ -41,16 +41,22 @@ export default async function handler(req, res) {
     return res.status(403).send("⛔ اعتبار اشتراک شما به پایان رسیده است.");
   }
 
-  // آدرس سورس کانفیگ‌ها در گیت‌هاب (به همراه مکانیزم ضد کش)
-  const GITHUB_RAW_URL = "https://raw.githubusercontent.com/majid1361/SUB/main/sub.txt";
+  // آدرس پایه ریپازیتوری در گیت‌هاب
+  const REPO_BASE = "https://raw.githubusercontent.com/majid1361/SUB/main";
 
   try {
-    const response = await fetch(`${GITHUB_RAW_URL}?t=${Date.now()}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
+    const fetchHeaders = {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    };
+
+    // ابتدا بررسی فایل اختصاصی کاربر (مثلاً majid.txt)
+    let response = await fetch(`${REPO_BASE}/${user}.txt?t=${Date.now()}`, { headers: fetchHeaders });
+
+    // اگر فایل اختصاصی نبود، خواندن فایل عمومی sub.txt
+    if (!response.ok) {
+      response = await fetch(`${REPO_BASE}/sub.txt?t=${Date.now()}`, { headers: fetchHeaders });
+    }
 
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
