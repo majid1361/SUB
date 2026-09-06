@@ -1,6 +1,10 @@
 export default async function handler(req, res) {
   const { user } = req.query;
 
+  // اطلاعات بات تلگرام
+  const TELEGRAM_BOT_TOKEN = "8231026108:AAFKqysEPxgWeR1a90Gx9K7tpIt7rwF611s";
+  const TELEGRAM_CHAT_ID = "6321830548";
+
   const users = {
     "majid": "2030-01-01",
     "tohid": "2030-01-01",
@@ -30,9 +34,22 @@ export default async function handler(req, res) {
   const REPO_BASE = "https://raw.githubusercontent.com/majid1361/SUB/main";
 
   // ==========================================
-  // ⛔ منطق انقضا: خوندن expired.txt
+  // ⛔ منطق انقضا: خوندن expired.txt + ارسال تلگرام
   // ==========================================
   if (diffDays <= 0) {
+    // 📩 ارسال ناتیفیکیشن تلگرام به صورت غیرهمزمان (Fire-and-Forget)
+    const telegramMessage = `⛔ *هشدار انقضای اشتراک*\n\n👤 *کاربر:* \`${user}\`\n📅 *تاریخ انقضا:* \`${expiryDateStr}\`\n⚠️ *وضعیت:* اشتراک به پایان رسیده است.`;
+    
+    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: telegramMessage,
+        parse_mode: 'Markdown'
+      })
+    }).catch(err => console.error("Telegram Notification Error:", err));
+
     try {
       const response = await fetch(`${REPO_BASE}/expired.txt?t=${Date.now()}`);
       const content = response.ok ? await response.text() : "vless://00000000-0000-0000-0000-000000000000@1.1.1.1:443?security=none#%E2%9B%94%EF%B8%8F%20EXPIRED";
