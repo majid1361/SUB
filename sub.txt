@@ -1,5 +1,4 @@
 vless://2edbad06-49de-4f75-bfc9-993a12cfe3f1@204.11.2.120:16565?mode=gun&security=reality&encryption=none&pbk=CuCszXg3N1y8X2klMaK70LeoRbF3vasPI0DG92Dyymo&fp=chrome&type=grpc&sni=cdn.diba4movie.xyz&sid=e3151e5761d8971b#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-16
-ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTpCaFlNa0JwakFqRTZpeFN3@20.164.211.25:443#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-18
 vless://460749c2-bcef-11ee-89fc-f23c913c8d2b@58.153.148.126:443?security=reality&encryption=none&pbk=bE6ws6dFPflj8WVJMGwtso0WOaiSmBOHM2muQO2Uul4&headerType=none&fp=chrome&type=tcp&sni=updates.cdn-apple.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-06
 vless://5dc6fa05-a601-aba6-7761-ecde22d2b0fc@58.153.148.126:443?security=reality&encryption=none&pbk=bE6ws6dFPflj8WVJMGwtso0WOaiSmBOHM2muQO2Uul4&headerType=none&fp=chrome&type=tcp&sni=updates.cdn-apple.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-07
 vless://3f514ea2-4662-11ed-a8bf-f23c91cfbbc9@58.153.148.126:443?security=reality&encryption=none&pbk=bE6ws6dFPflj8WVJMGwtso0WOaiSmBOHM2muQO2Uul4&headerType=none&fp=chrome&type=tcp&sni=updates.cdn-apple.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-08
