@@ -13,3 +13,6 @@ hysteria2://fr9p9ji70krwnup6@giftcard.gateway-stream.com:52018?security=tls&obfs
 hysteria2://fr9p9ji70krwnup6@giftcard.gateway-stream.com:52009?security=tls&obfs=salamander&obfs-password=fuw2k1ddrouwxr3u&insecure=0&sni=giftcard.gateway-stream.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-13
 hysteria2://fr9p9ji70krwnup6@giftcard.gateway-stream.com:52001?security=tls&obfs=salamander&obfs-password=fuw2k1ddrouwxr3u&insecure=0&sni=giftcard.gateway-stream.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-14
 hysteria2://fr9p9ji70krwnup6@giftcard.gateway-stream.com:52000?security=tls&obfs=salamander&obfs-password=fuw2k1ddrouwxr3u&insecure=0&sni=giftcard.gateway-stream.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-15
+hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?security=tls&obfs=salamander&obfs-password=c1b4086fea89914496c7e10967a419216566&insecure=0&sni=hy2-new.aspidnet.xyz#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-16
+hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?security=tls&obfs=salamander&obfs-password=c1b4086fea89914496c7e10967a419216566&insecure=0&sni=hy2-new.aspidnet.xyz#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-17
+hysteria2://cd74c0a406664a5bc0bac098220a2468@144.31.49.138:443?security=tls&obfs=salamander&obfs-password=44f1c1e2f8b99e792ceed574627a1eb0&insecure=0&sni=ru1.sferavpn.pro#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-18
