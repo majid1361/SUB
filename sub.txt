@@ -20,3 +20,9 @@ hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?secu
 hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?security=tls&obfs=salamander&obfs-password=c1b4086fea89914496c7e10967a419216566&insecure=0&sni=hy2-new.aspidnet.xyz#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-507
 hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?security=tls&obfs=salamander&obfs-password=c1b4086fea89914496c7e10967a419216566&insecure=0&sni=hy2-new.aspidnet.xyz#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2212
 hysteria2://cd74c0a406664a5bc0bac098220a2468@144.31.49.138:443?security=tls&obfs=salamander&obfs-password=44f1c1e2f8b99e792ceed574627a1eb0&insecure=0&sni=ru1.sferavpn.pro#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2216
+hysteria2://cd74c0a406664a5bc0bac098220a2468@144.31.49.138:443?security=tls&obfs=salamander&obfs-password=44f1c1e2f8b99e792ceed574627a1eb0&insecure=0&sni=ru1.sferavpn.pro#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2652
+hysteria2://sxc15led4b0vp5fy@musicclips.videolinks.ru:8443?security=tls&obfs=salamander&obfs-password=8zzng75tz4tf82pj&insecure=0&sni=musicclips.videolinks.ru#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2737
+hysteria2://QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s@162.249.125.133:443?security=tls&obfs=salamander&obfs-password=c1b4086fea89914496c7e10967a419216566&insecure=0&sni=hy2-new.aspidnet.xyz#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2650
+hysteria2://sxc15led4b0vp5fy@social.klipp.su:443?security=tls&obfs=salamander&obfs-password=3sv5vpdl9xr84lyb&insecure=0&sni=social.klipp.su#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2739
+hysteria2://sxc15led4b0vp5fy@2.26.49.16:443?security=tls&obfs=salamander&obfs-password=3sv5vpdl9xr84lyb&insecure=0&sni=social.klipp.su#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-2729
+
