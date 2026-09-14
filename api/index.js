@@ -13,10 +13,7 @@ export default async function handler(req, res) {
     "farbod-golkam": "2030-01-01",
     "behnam-eslami": "2026-10-07",
     "farnam-kalvani": "2026-10-15",
-    "user7": "2027-09-01",
-    "user8": "2027-09-01",
-    "user9": "2027-09-01",
-    "user10": "2027-09-01"
+    "user": "2026-10-01",
   };
 
   if (!user || !users[user]) {
