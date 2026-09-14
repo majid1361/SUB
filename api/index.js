@@ -58,11 +58,10 @@ export default async function handler(req, res) {
     if (!response.ok) throw new Error("Fetch Error");
     const configs = await response.text();
 
-    const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
-    const totalBytes = 0; 
+    const expireTimestamp = Math.floor(expireDate.getTime() / 1000); 
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Subscription-Userinfo", `expire=${expireTimestamp}`);
     res.setHeader("Profile-Title", `Sub: ${user}`);
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
