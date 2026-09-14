@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   const { user } = req.query;
 
   const users = {
-    "majid": "2030-01-01",
+    "majid": "2026-01-01",
     "tohid": "2030-01-01",
     "roja": "2030-01-01",
     "vida": "2030-01-01",
