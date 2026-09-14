@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     const configs = await response.text();
 
     const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
-    const totalBytes = 10000 * 1024 * 1024 * 1024; 
+    const totalBytes = 100000 * 1024 * 1024 * 1024; 
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
