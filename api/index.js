@@ -1,80 +1,80 @@
 export default async function handler(req, res) {
-  // ⛔ هدرهای ضد کش برای کلاینت (هیدیفای/v2rayNG) و ورسل
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-
   const { user } = req.query;
-  const REPO_BASE = 'https://raw.githubusercontent.com/majid1361/SUB/main';
+  const REPO_BASE = "https://raw.githubusercontent.com/majid1361/SUB/main";
 
-  // 🕒 تولید تایم‌استمپ یکتا برای دور زدن کامل کش CDN گیت‌هاب
-  const timestamp = Date.now();
-
-  // 👥 ۱. خواندن آنی و بدون کش کاربران از users.json
+  // ==========================================
+  // 🔄 ۱. خواندن پویا (Live) کاربران از فایل users.json
+  // ==========================================
   let users = {};
   try {
-    const usersRes = await fetch(`${REPO_BASE}/users.json?_t=${timestamp}`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
+    const usersRes = await fetch(`${REPO_BASE}/users.json?t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
     });
     if (usersRes.ok) {
       users = await usersRes.json();
     }
   } catch (e) {
-    console.error("Error fetching users.json:", e);
+    console.error("Failed to fetch users.json", e);
   }
 
-  // 🔒 ۲. احراز هویت کاربر
+  // ==========================================
+  // 🔒 ۲. بررسی اعتبار کاربر
+  // ==========================================
   if (!user || !users[user]) {
-    return res.status(403).send("403 Unauthorized: Invalid or missing user token.");
+    return res.status(403).send("⚠️ Unauthorized");
   }
 
   const expiryDateStr = users[user];
-  const expiryDate = new Date(expiryDateStr);
+  const expireDate = new Date(`${expiryDateStr}T23:59:59Z`);
   const today = new Date();
-  
-  // محاسبه روزهای باقی‌مانده
-  const diffTime = expiryDate.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const expiryTimestamp = Math.floor(expiryDate.getTime() / 1000);
+  const diffDays = Math.ceil((expireDate - today) / (1000 * 60 * 60 * 24));
 
-  // ⌛ ۳. سناریوی کاربر منقضی شده
+  // ==========================================
+  // ⛔ ۳. منطق انقضا: خوندن expired.txt
+  // ==========================================
   if (diffDays <= 0) {
-    res.setHeader('Profile-Title', `⛔ EXPIRED | ${user}`);
-    res.setHeader('Subscription-Userinfo', `upload=0; download=0; total=10737418240; expire=${expiryTimestamp}`);
     try {
-      const expRes = await fetch(`${REPO_BASE}/expired.txt?_t=${timestamp}`, { cache: 'no-store' });
-      const expText = await expRes.text();
-      return res.status(200).send(expText.trim());
-    } catch {
-      return res.status(200).send("vless://00000000-0000-0000-0000-000000000000@127.0.0.1:80?security=none&type=tcp#⛔+Account+Expired");
+      const response = await fetch(`${REPO_BASE}/expired.txt?t=${Date.now()}`);
+      const content = response.ok 
+        ? await response.text() 
+        : "vless://00000000-0000-0000-0000-000000000000@1.1.1.1:443?security=none#%E2%9B%94%EF%B8%8F%20EXPIRED";
+      
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.setHeader("Profile-Title", `⛔ EXPIRED | ${user}`);
+      return res.status(200).send(content); 
+    } catch (e) {
+      return res.status(200).send("vless://00000000-0000-0000-0000-000000000000@1.1.1.1:443?security=none#%E2%9B%94%EF%B8%8F%20EXPIRED");
     }
   }
 
-  // ✅ ۴. کاربر فعال: تنظیم هدرها
-  res.setHeader('Profile-Title', `⏳ ${diffDays} Days Left | ${user}`);
-  res.setHeader('Subscription-Userinfo', `upload=0; download=0; total=10995116277760; expire=${expiryTimestamp}`);
-
-  // 📥 ۵. دریافت کانفیگ‌ها (ابتدا اختصاصی، سپس عمومی)
-  let configText = "";
+  // ==========================================
+  // 🟢 ۴. منطق فعال: خوندن کانفیگ‌ها
+  // ==========================================
   try {
-    const userRes = await fetch(`${REPO_BASE}/${user}.txt?_t=${timestamp}`, { cache: 'no-store' });
-    if (userRes.ok) {
-      configText = await userRes.text();
-    } else {
-      const subRes = await fetch(`${REPO_BASE}/sub.txt?_t=${timestamp}`, { cache: 'no-store' });
-      configText = await subRes.text();
+    const fetchHeaders = { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' };
+    
+    // اول فایل اختصاصی، نبود برو سراغ عمومی
+    let response = await fetch(`${REPO_BASE}/${user}.txt?t=${Date.now()}`, { headers: fetchHeaders });
+    if (!response.ok) {
+      response = await fetch(`${REPO_BASE}/sub.txt?t=${Date.now()}`, { headers: fetchHeaders });
     }
-  } catch (err) {
-    return res.status(200).send("vless://00000000-0000-0000-0000-000000000000@127.0.0.1:80?security=none&type=tcp#❌+Server+Connection+Error");
+
+    if (!response.ok) throw new Error("Fetch Error");
+    const configs = await response.text();
+
+    const expireTimestamp = Math.floor(expireDate.getTime() / 1000);
+    const totalBytes = 100000 * 1024 * 1024 * 1024; 
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Subscription-Userinfo", `upload=0; download=0; total=${totalBytes}; expire=${expireTimestamp}`);
+    res.setHeader("Profile-Title", `Sub: ${user}`);
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+
+    const infoConfig = `vless://00000000-0000-0000-0000-000000000000@1.1.1.1:443?security=none#%E2%8F%B3%20${diffDays}%20Days%20Left%20%7C%20Exp:%20${expiryDateStr}`;
+    
+    return res.status(200).send(`${infoConfig}\n${configs.trim()}`);
+
+  } catch (error) {
+    return res.status(200).send("vless://00000000-0000-0000-0000-000000000000@1.1.1.1:443?security=none#⚠️%20Error%20Fetching%20Configs");
   }
-
-  // 🏷️ ۶. افزودن کانفیگ وضعیت انقضا در بالای لیست
-  const infoConfig = `vless://00000000-0000-0000-0000-000000000000@127.0.0.1:80?security=none&type=tcp#⏳+${diffDays}+Days+Left+|+Exp:+${expiryDateStr}`;
-  const finalResponse = `${infoConfig}\n${configText.trim()}`;
-
-  return res.status(200).send(finalResponse);
 }
