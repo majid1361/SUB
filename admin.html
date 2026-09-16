@@ -8,74 +8,88 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-  <style> body { font-family: 'Vazirmatn', sans-serif; } </style>
+  <style>
+    body { font-family: 'Vazirmatn', sans-serif; }
+    /* جلوگیری از شکستن سطرهای جدول در مانیتورهای کوچک و گوشی */
+    .nowrap-cell { whitespace: nowrap; }
+  </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen p-4 md:p-8">
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen p-3 md:p-8">
 
-  <div class="max-w-4xl w-full mx-auto space-y-6">
+  <!-- پهنای کل صفحه برای کامپیوتر به max-w-6xl افزایش یافت -->
+  <div class="max-w-6xl w-full mx-auto space-y-6">
+    
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-2xl gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900/80 border border-slate-800 rounded-2xl p-5 md:p-6 shadow-2xl gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-          <i data-lucide="shield" class="text-white"></i>
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i data-lucide="shield" class="w-7 h-7 text-white"></i>
         </div>
         <div>
-          <h1 class="text-xl font-black text-white">SUB Users</h1>
-          <p class="text-xs text-slate-400">پنل مدیریت هوشمند</p>
+          <h1 class="text-2xl font-black text-white tracking-wide">SUB Users</h1>
+          <p class="text-xs md:text-sm text-slate-400">پنل مدیریت هوشمند اشتراک‌ها</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 transition" title="رفرش داده‌ها">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-3 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 transition shadow" title="رفرش داده‌ها">
+          <i data-lucide="refresh-cw" class="w-5 h-5"></i>
         </button>
-        <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700 transition">
-          <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
+        <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800 px-5 py-3 rounded-xl border border-slate-700 text-sm font-bold hover:bg-slate-700 transition shadow">
+          <i data-lucide="key" class="w-5 h-5 text-blue-400"></i> تنظیمات
         </button>
       </div>
     </div>
 
-    <!-- Add User Area -->
-    <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+    <!-- Add User & Search Area -->
+    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 md:p-6 space-y-4 shadow-xl">
       <div class="relative">
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی کاربر..." class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-10 py-2.5 text-sm focus:border-blue-500 outline-none">
-        <i data-lucide="search" class="w-4 h-4 absolute right-4 top-3 text-slate-500"></i>
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی سریع کاربر..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-11 py-3 text-base text-white focus:border-blue-500 outline-none transition">
+        <i data-lucide="search" class="w-5 h-5 absolute right-4 top-3.5 text-slate-500"></i>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
-        <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
-        <button onclick="addUserAction()" class="bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20 transition">افزودن کاربر</button>
+        <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-base focus:border-blue-500 outline-none text-white">
+        <input type="date" id="expiryInput" class="bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-base focus:border-blue-500 outline-none text-white">
+        <button onclick="addUserAction()" class="bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-base shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5"></i> افزودن کاربر
+        </button>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden">
-      <table class="w-full text-right text-sm">
-        <thead class="bg-slate-950/60 text-slate-400 uppercase text-xs">
-          <tr>
-            <th class="py-3 px-5">نام</th>
-            <th class="py-3 px-5">انقضا</th>
-            <th class="py-3 px-5">وضعیت</th>
-            <th class="py-3 px-5 text-center">عملیات</th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody">
-          <tr><td colspan="4" class="text-center py-8 text-slate-500">در حال اتصال...</td></tr>
-        </tbody>
-      </table>
+    <!-- Table Container with Framing -->
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-2 md:p-4">
+      <div class="overflow-x-auto">
+        <table class="w-full text-right border-separate border-spacing-y-2.5">
+          <thead>
+            <tr class="text-slate-400 text-xs md:text-sm font-bold border-b border-slate-800">
+              <th class="py-3 px-4 text-center w-12">#</th>
+              <th class="py-3 px-4">نام کاربر</th>
+              <th class="py-3 px-4">تاریخ انقضا</th>
+              <th class="py-3 px-4 text-center">وضعیت</th>
+              <th class="py-3 px-4 text-center">عملیات</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr><td colspan="5" class="text-center py-10 text-slate-500 text-base">در حال اتصال...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
   </div>
 
   <!-- Edit User Modal -->
   <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-      <h3 class="text-lg font-bold mb-4 text-white">ویرایش کاربر</h3>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 class="text-xl font-bold mb-5 text-white flex items-center gap-2">
+        <i data-lucide="edit-3" class="text-blue-400"></i> ویرایش کاربر
+      </h3>
       <label class="text-xs text-slate-400 mb-1 block">نام کاربری (غیرقابل تغییر):</label>
-      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm text-slate-500 cursor-not-allowed outline-none">
+      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 mb-4 text-base text-slate-400 cursor-not-allowed outline-none font-bold">
       <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا جدید:</label>
-      <input id="editExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm text-white focus:border-blue-500 outline-none">
-      <div class="flex gap-2">
-        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700 transition">انصراف</button>
-        <button onclick="submitUpdate()" class="flex-1 bg-blue-500 py-2 rounded-xl font-bold text-sm text-white hover:bg-blue-600 transition">به‌روزرسانی</button>
+      <input id="editExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 mb-6 text-base text-white focus:border-blue-500 outline-none">
+      <div class="flex gap-3">
+        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-3 rounded-xl text-sm font-bold hover:bg-slate-700 transition">انصراف</button>
+        <button onclick="submitUpdate()" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold text-sm text-white hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">به‌روزرسانی</button>
       </div>
     </div>
   </div>
@@ -84,19 +98,21 @@
   <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 flex flex-col items-center shadow-2xl">
       <h3 id="qrModalTitle" class="text-lg font-bold mb-4 text-white">QR Code ساب</h3>
-      <div id="qrcode" class="bg-white p-3 rounded-xl mb-4 flex items-center justify-center min-h-[220px]"></div>
-      <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700 transition">بستن</button>
+      <div id="qrcode" class="bg-white p-4 rounded-2xl mb-5 flex items-center justify-center min-h-[220px] shadow-inner"></div>
+      <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-700 transition">بستن</button>
     </div>
   </div>
 
   <!-- Config Modal -->
   <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-      <h3 class="text-lg font-bold mb-4 text-white">تنظیمات اتصال به گیت‌هاب</h3>
-      <input id="ghOwner" placeholder="Owner (مثلاً majid1361)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm focus:border-blue-500 outline-none">
-      <input id="ghRepo" placeholder="Repo (مثلاً SUB)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm focus:border-blue-500 outline-none">
-      <input id="ghToken" type="password" placeholder="PAT Token (ghp_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm focus:border-blue-500 outline-none">
-      <button onclick="saveConfig()" class="w-full bg-blue-500 hover:bg-blue-600 py-2.5 rounded-xl font-bold text-sm text-white transition">ذخیره و اتصال</button>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 class="text-xl font-bold mb-5 text-white flex items-center gap-2">
+        <i data-lucide="key" class="text-blue-400"></i> تنظیمات اتصال گیت‌هاب
+      </h3>
+      <input id="ghOwner" placeholder="Owner (مثلاً majid1361)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 mb-3 text-sm focus:border-blue-500 outline-none text-white">
+      <input id="ghRepo" placeholder="Repo (مثلاً SUB)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 mb-3 text-sm focus:border-blue-500 outline-none text-white">
+      <input id="ghToken" type="password" placeholder="PAT Token (ghp_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 mb-5 text-sm focus:border-blue-500 outline-none text-white">
+      <button onclick="saveConfig()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold text-base text-white transition shadow-lg shadow-blue-600/25">ذخیره و اتصال</button>
     </div>
   </div>
 
@@ -130,7 +146,7 @@
       const tbody = document.getElementById('userTableBody');
 
       if (!o || !r || !t) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-amber-400">لطفاً ابتدا تنظیمات اتصال را وارد کنید.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-amber-400">لطفاً ابتدا تنظیمات اتصال را وارد کنید.</td></tr>';
         return;
       }
 
@@ -139,7 +155,6 @@
         try {
           usersData = JSON.parse(cached);
           renderTable();
-          // واکشی SHA در پس‌زمینه بدون بلاک کردن UI
           fetchShaSilently(o, r, t);
           return;
         } catch (e) {
@@ -147,7 +162,7 @@
         }
       }
 
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">در حال برقراری ارتباط با مخزن...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-slate-400 animate-pulse text-base">در حال برقراری ارتباط با مخزن...</td></tr>';
 
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
@@ -169,7 +184,7 @@
         localStorage.setItem('users_cache', JSON.stringify(usersData));
         renderTable();
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">❌ ${err.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-rose-500 text-base">❌ ${err.message}</td></tr>`;
       }
     }
 
@@ -192,33 +207,45 @@
       const entries = Object.entries(usersData);
 
       if (entries.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">هیچ کاربری ثبت نشده است.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-10 text-slate-500 text-base">هیچ کاربری ثبت نشده است.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = entries.map(([u, e]) => {
+      tbody.innerHTML = entries.map(([u, e], index) => {
         const isExpired = new Date(e) < new Date();
         return `
-          <tr class="border-b border-slate-800/50 hover:bg-slate-800/20 transition user-row">
-            <td class="py-3.5 px-5 font-bold text-white name-cell">${u}</td>
-            <td class="py-3.5 px-5 font-mono text-xs text-slate-400">${e}</td>
-            <td class="py-3.5 px-5 text-xs">
-              ${isExpired 
-                ? '<span class="px-2 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">منقضی</span>' 
-                : '<span class="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">فعال</span>'}
+          <tr class="bg-slate-950/60 border border-slate-800/80 rounded-xl hover:bg-slate-800/40 transition-all duration-150 user-row shadow-sm">
+            <!-- شماره ردیف -->
+            <td class="py-4 px-4 text-center font-mono font-bold text-slate-500 text-sm rounded-r-xl border-r border-y border-slate-800/80">
+              ${index + 1}
             </td>
-            <td class="py-3.5 px-5">
-              <div class="flex items-center justify-center gap-3">
-                <button onclick="copySubLink('${u}')" class="text-emerald-400 hover:text-emerald-300 transition" title="کپی لینک ساب">
+            <!-- نام کاربر با فونت درشت‌تر -->
+            <td class="py-4 px-4 font-black text-white text-base md:text-lg name-cell border-y border-slate-800/80 nowrap-cell">
+              ${u}
+            </td>
+            <!-- تاریخ انقضا -->
+            <td class="py-4 px-4 font-mono text-sm text-slate-300 border-y border-slate-800/80 nowrap-cell">
+              ${e}
+            </td>
+            <!-- وضعیت -->
+            <td class="py-4 px-4 text-center border-y border-slate-800/80 nowrap-cell">
+              ${isExpired 
+                ? '<span class="px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold">منقضی</span>' 
+                : '<span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold">فعال</span>'}
+            </td>
+            <!-- دکمه‌های عملیات (یک سطری) -->
+            <td class="py-4 px-4 border-y border-l border-slate-800/80 rounded-l-xl nowrap-cell">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="copySubLink('${u}')" class="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition" title="کپی لینک ساب">
                   <i data-lucide="link" class="w-4 h-4"></i>
                 </button>
-                <button onclick="generateQR('${u}')" class="text-indigo-400 hover:text-indigo-300 transition" title="نمایش QR کد">
+                <button onclick="generateQR('${u}')" class="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition" title="نمایش QR کد">
                   <i data-lucide="qr-code" class="w-4 h-4"></i>
                 </button>
-                <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300 transition" title="ویرایش تاریخ">
+                <button onclick="openEditModal('${u}')" class="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition" title="ویرایش تاریخ">
                   <i data-lucide="edit-3" class="w-4 h-4"></i>
                 </button>
-                <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400 transition" title="حذف کاربر">
+                <button onclick="deleteUser('${u}')" class="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 transition" title="حذف کاربر">
                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
               </div>
@@ -362,7 +389,7 @@
       localStorage.setItem('gh_owner', o);
       localStorage.setItem('gh_repo', r);
       localStorage.setItem('gh_token', t);
-      localStorage.removeItem('users_cache'); // پاکسازی کش قبلی برای لود مجدد
+      localStorage.removeItem('users_cache');
 
       toggleModal('configModal');
       loadUsersFromGitHub(true);
