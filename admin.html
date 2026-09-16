@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SUB Users | پنل مدیریت</title>
+  <title>SUB Users | پنل مدیریت اشتراک‌ها</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
-  <!-- کتابخانه تقویم پاپ‌آپ مدرن با تم تاریک برای دسکتاپ -->
+  <!-- Flatpickr Dark Theme -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -23,89 +23,187 @@
       border-radius: 1rem !important;
       font-family: 'Vazirmatn', sans-serif !important;
     }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .stat-card {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .user-row {
+      transition: all 0.2s ease;
+    }
+    .user-row:hover {
+      border-color: rgba(59, 130, 246, 0.35);
+      background: rgba(15, 23, 42, 0.9);
+    }
+    /* Toast Animation */
+    @keyframes slideIn {
+      from { transform: translateY(100%) scale(0.9); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(100%) scale(0.9); opacity: 0; }
+    }
+    .toast-in { animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .toast-out { animation: slideOut 0.25s ease forwards; }
   </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen p-2 sm:p-6">
+<body class="bg-[#070b14] text-slate-100 min-h-screen p-2 sm:p-6 antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 sm:left-6 sm:translate-x-0 z-[100] flex flex-col gap-2 pointer-events-none w-[90%] max-w-sm"></div>
 
   <div class="max-w-6xl w-full mx-auto space-y-4 sm:space-y-6">
     
     <!-- Header -->
-    <div class="flex justify-between items-center bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+    <div class="glass-panel rounded-2xl p-4 sm:p-5 shadow-2xl flex justify-between items-center relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="flex items-center gap-3 relative">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 ring-1 ring-white/20">
           <i data-lucide="shield" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
         </div>
         <div>
-          <h1 class="text-lg sm:text-2xl font-black text-white tracking-wide">SUB Users</h1>
-          <p class="text-[10px] sm:text-xs text-slate-400">پنل مدیریت اشتراک‌ها</p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-2xl font-black text-white tracking-wide">SUB Users</h1>
+            <span class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30 font-bold">Pro v2.0</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-slate-400">داشبورد هوشمند مدیریت و مانیتورینگ اشتراک‌ها</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 transition shadow" title="رفرش داده‌ها">
+
+      <div class="flex items-center gap-2 relative">
+        <button onclick="exportBackupJSON()" class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700/80 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow hover:border-sky-500/40" title="دانلود بک‌آپ دیتابیس (JSON)">
+          <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700/80 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow hover:border-emerald-500/40" title="رفرش و همگام‌سازی">
           <i data-lucide="refresh-cw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
-        <button onclick="toggleModal('configModal')" class="flex items-center gap-1.5 bg-slate-800 px-3 py-2.5 rounded-xl border border-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-700 transition shadow">
+        <button onclick="toggleModal('configModal')" class="flex items-center gap-1.5 bg-slate-800/90 px-3 py-2.5 rounded-xl border border-slate-700/80 text-xs sm:text-sm font-bold hover:bg-slate-700 transition shadow hover:border-blue-500/40">
           <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
         </button>
       </div>
     </div>
 
-    <!-- Add User & Search Area -->
-    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-3 shadow-xl">
-      <div class="relative">
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی سریع کاربر..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-10 py-2.5 text-sm sm:text-base text-white focus:border-blue-500 outline-none transition">
-        <i data-lucide="search" class="w-4 h-4 absolute right-3.5 top-3.5 text-slate-500"></i>
+    <!-- Quick Stats Bar -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div class="stat-card glass-panel rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
+        <div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-semibold mb-1">کل مشترکین</div>
+          <div id="statTotal" class="text-xl sm:text-2xl font-black text-white">0</div>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+          <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </div>
       </div>
-      
+
+      <div class="stat-card glass-panel rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
+        <div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-semibold mb-1">فعال</div>
+          <div id="statActive" class="text-xl sm:text-2xl font-black text-emerald-400">0</div>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+          <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </div>
+      </div>
+
+      <div class="stat-card glass-panel rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
+        <div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-semibold mb-1">رو به اتمام (&le; ۷ روز)</div>
+          <div id="statExpiring" class="text-xl sm:text-2xl font-black text-amber-400">0</div>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+          <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </div>
+      </div>
+
+      <div class="stat-card glass-panel rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
+        <div>
+          <div class="text-[11px] sm:text-xs text-slate-400 font-semibold mb-1">منقضی شده</div>
+          <div id="statExpired" class="text-xl sm:text-2xl font-black text-rose-400">0</div>
+        </div>
+        <div class="w-9 h-9 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
+          <i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add User & Search Area -->
+    <div class="glass-panel rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white">
+        <input type="text" id="usernameInput" placeholder="نام کاربری جدید..." class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white transition placeholder:text-slate-600">
         
-        <!-- فیلد تاریخ کاربر جدید -->
         <div class="relative">
-          <input type="text" id="expiryInput" placeholder="انتخاب تاریخ انقضا..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white cursor-pointer" readonly>
+          <input type="text" id="expiryInput" placeholder="انتخاب تاریخ انقضا..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white cursor-pointer placeholder:text-slate-600" readonly>
           <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3.5 text-slate-500 pointer-events-none"></i>
         </div>
 
-        <button onclick="addUserAction()" class="bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2">
+        <button onclick="addUserAction()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-2.5 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 transition flex items-center justify-center gap-2 active:scale-95">
           <i data-lucide="user-plus" class="w-4 h-4"></i> افزودن کاربر
         </button>
       </div>
 
-      <!-- دکمه‌های سریع تاریخ برای کاربر جدید -->
-      <div class="flex items-center gap-2 pt-1 text-xs text-slate-400 overflow-x-auto">
-        <span class="shrink-0 font-bold text-slate-500">تاریخ سریع:</span>
-        <button type="button" onclick="setQuickExpiry(1, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
-        <button type="button" onclick="setQuickExpiry(3, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
-        <button type="button" onclick="setQuickExpiry(12, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
+      <!-- Quick Presets for Add -->
+      <div class="flex items-center gap-2 pt-0.5 text-xs text-slate-400 overflow-x-auto pb-1">
+        <span class="shrink-0 font-bold text-slate-500 flex items-center gap-1"><i data-lucide="zap" class="w-3 h-3"></i> تاریخ سریع:</span>
+        <button type="button" onclick="setQuickExpiry(1, 'add')" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0 hover:border-slate-500">+۱ ماه</button>
+        <button type="button" onclick="setQuickExpiry(3, 'add')" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0 hover:border-slate-500">+۳ ماه</button>
+        <button type="button" onclick="setQuickExpiry(12, 'add')" class="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0 hover:border-slate-500">+۱ سال</button>
         <button type="button" onclick="setQuickExpiry('2030', 'add')" class="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/60 rounded-lg border border-indigo-800/60 text-indigo-300 transition shrink-0">۲۰۳۰ (طولانی)</button>
+      </div>
+
+      <div class="border-t border-slate-800/80 pt-3 flex flex-col sm:flex-row gap-2.5 justify-between items-stretch sm:items-center">
+        <!-- Search -->
+        <div class="relative flex-1">
+          <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="جستجوی سریع در نام‌ها یا تاریخ..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-10 py-2 text-xs sm:text-sm text-white focus:border-blue-500 outline-none transition placeholder:text-slate-600">
+          <i data-lucide="search" class="w-4 h-4 absolute right-3.5 top-2.5 text-slate-500"></i>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800 overflow-x-auto text-[11px] sm:text-xs">
+          <button onclick="setFilter('all', this)" class="filter-btn active px-3 py-1.5 rounded-lg font-bold bg-blue-600 text-white transition shrink-0">همه</button>
+          <button onclick="setFilter('active', this)" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition shrink-0">فعال‌ها</button>
+          <button onclick="setFilter('expiring', this)" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-amber-400 transition shrink-0">نزدیک انقضا</button>
+          <button onclick="setFilter('expired', this)" class="filter-btn px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-rose-400 transition shrink-0">منقضی‌ها</button>
+        </div>
       </div>
     </div>
 
     <!-- Users List Container -->
-    <div id="userListContainer" class="space-y-2.5">
-      <div class="text-center py-10 text-slate-500 text-sm">در حال اتصال...</div>
+    <div id="userListContainer" class="space-y-2">
+      <div class="text-center py-12 text-slate-500 text-sm flex items-center justify-center gap-2">
+        <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-blue-400"></i> در حال اتصال و بارگذاری...
+      </div>
     </div>
 
   </div>
 
   <!-- Edit User Modal -->
   <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl">
-      <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
-        <i data-lucide="edit-3" class="text-blue-400"></i> ویرایش / تمدید کاربر
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl relative">
+      <h3 class="text-base sm:text-lg font-bold mb-4 text-white flex items-center gap-2">
+        <i data-lucide="edit-3" class="text-blue-400 w-5 h-5"></i> ویرایش و تمدید هوشمند کاربر
       </h3>
+      
       <label class="text-xs text-slate-400 mb-1 block">نام کاربری:</label>
-      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 mb-3 text-sm text-slate-400 cursor-not-allowed outline-none font-bold">
+      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 mb-3 text-sm text-slate-300 font-mono font-bold cursor-not-allowed outline-none">
       
       <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا:</label>
       <div class="relative mb-2.5">
-        <input id="editExpiry" type="text" placeholder="انتخاب تاریخ جدید..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none cursor-pointer" readonly>
-        <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3 text-slate-500 pointer-events-none"></i>
+        <input id="editExpiry" type="text" placeholder="انتخاب تاریخ جدید..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-blue-500 outline-none cursor-pointer font-mono" readonly>
+        <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3.5 text-slate-500 pointer-events-none"></i>
       </div>
 
-      <!-- دکمه‌های تمدید سریع در مودال ادیت -->
       <div class="flex items-center gap-1.5 mb-5 text-xs text-slate-400 overflow-x-auto pb-1">
-        <span class="shrink-0 font-bold text-slate-500">تمدید سریع:</span>
+        <span class="shrink-0 font-bold text-slate-500 flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> تمدید هوشمند:</span>
         <button type="button" onclick="setQuickExpiry(1, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
         <button type="button" onclick="setQuickExpiry(3, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
         <button type="button" onclick="setQuickExpiry(12, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
@@ -113,8 +211,8 @@
       </div>
 
       <div class="flex gap-2">
-        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition">انصراف</button>
-        <button onclick="submitUpdate()" class="flex-1 bg-blue-600 py-2.5 rounded-xl font-bold text-xs text-white hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">ذخیره تغییرات</button>
+        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition text-slate-300">انصراف</button>
+        <button onclick="submitUpdate()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-2.5 rounded-xl font-bold text-xs text-white transition shadow-lg shadow-blue-600/25">ذخیره تغییرات</button>
       </div>
     </div>
   </div>
@@ -122,7 +220,10 @@
   <!-- QR Modal -->
   <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xs w-full p-5 flex flex-col items-center shadow-2xl">
-      <h3 id="qrModalTitle" class="text-base font-bold mb-4 text-white">QR Code ساب</h3>
+      <div class="w-full flex items-center justify-between mb-4">
+        <h3 id="qrModalTitle" class="text-sm font-bold text-white truncate">QR Code ساب</h3>
+        <button onclick="toggleModal('qrModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
       <div id="qrcode" class="bg-white p-3 rounded-2xl mb-4 flex items-center justify-center min-h-[190px] shadow-inner"></div>
       <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2 rounded-xl text-xs font-bold hover:bg-slate-700 transition">بستن</button>
     </div>
@@ -136,7 +237,7 @@
       </h3>
       <input id="ghOwner" placeholder="Owner (مثلاً majid1361)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 mb-2.5 text-xs sm:text-sm focus:border-blue-500 outline-none text-white">
       <input id="ghRepo" placeholder="Repo (مثلاً SUB)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 mb-2.5 text-xs sm:text-sm focus:border-blue-500 outline-none text-white">
-      <input id="ghToken" type="password" placeholder="PAT Token (ghp_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 mb-4 text-xs sm:text-sm focus:border-blue-500 outline-none text-white">
+      <input id="ghToken" type="password" placeholder="PAT Token (ghp_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 mb-4 text-xs sm:text-sm focus:border-blue-500 outline-none text-white font-mono">
       <button onclick="saveConfig()" class="w-full bg-blue-600 hover:bg-blue-500 py-2.5 rounded-xl font-bold text-sm text-white transition shadow-lg shadow-blue-600/25">ذخیره و اتصال</button>
     </div>
   </div>
@@ -144,7 +245,41 @@
   <script>
     let usersData = {};
     let currentSha = "";
+    let currentFilter = 'all';
     let fpAdd, fpEdit;
+
+    // Toast Notification System
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let borderCol = 'border-emerald-500/40';
+      let icon = 'check-circle';
+      let iconCol = 'text-emerald-400';
+      let bgCol = 'bg-slate-900/95';
+
+      if (type === 'error') {
+        borderCol = 'border-rose-500/40';
+        icon = 'alert-circle';
+        iconCol = 'text-rose-400';
+      } else if (type === 'warn') {
+        borderCol = 'border-amber-500/40';
+        icon = 'alert-triangle';
+        iconCol = 'text-amber-400';
+      }
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 ${bgCol} border ${borderCol} p-3 rounded-xl shadow-2xl backdrop-blur-md text-xs sm:text-sm text-white font-bold toast-in`;
+      toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 ${iconCol} shrink-0"></i> <span>${message}</span>`;
+
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.classList.remove('toast-in');
+        toast.classList.add('toast-out');
+        setTimeout(() => toast.remove(), 250);
+      }, 2500);
+    }
 
     function toggleModal(id) {
       const modal = document.getElementById(id);
@@ -231,7 +366,7 @@
         }
       }
 
-      container.innerHTML = '<div class="text-center py-8 text-slate-400 animate-pulse text-sm">در حال دریافت داده‌ها از گیت‌هاب...</div>';
+      container.innerHTML = '<div class="text-center py-10 text-slate-400 animate-pulse text-sm">در حال دریافت داده‌ها از گیت‌هاب...</div>';
 
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
@@ -252,8 +387,10 @@
         usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         localStorage.setItem('users_cache', JSON.stringify(usersData));
         renderUsers();
+        if (force) showToast('اطلاعات با موفقیت همگام شد');
       } catch (err) {
         container.innerHTML = `<div class="text-center py-6 text-rose-500 text-sm">❌ ${err.message}</div>`;
+        showToast(err.message, 'error');
       }
     }
 
@@ -275,14 +412,19 @@
       const container = document.getElementById('userListContainer');
       const entries = Object.entries(usersData);
 
-      if (entries.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-slate-500 text-sm">هیچ کاربری ثبت نشده است.</div>';
-        return;
-      }
+      let total = entries.length;
+      let active = 0;
+      let expiring = 0;
+      let expired = 0;
 
-      // تاریخ امروز بدون احتساب ساعت (برای مقایسه دقیق روز)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+
+      if (total === 0) {
+        container.innerHTML = '<div class="text-center py-10 text-slate-500 text-sm">هیچ کاربری ثبت نشده است.</div>';
+        updateStats(0, 0, 0, 0);
+        return;
+      }
 
       container.innerHTML = entries.map(([u, e], index) => {
         const expDate = new Date(e);
@@ -292,18 +434,26 @@
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
         const isExpired = diffDays < 0;
 
-        // ساخت برچسب وضعیت با روزهای باقیمانده
+        let statusType = 'active';
         let statusBadge = '';
+
         if (isExpired) {
+          expired++;
+          statusType = 'expired';
           statusBadge = '<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] sm:text-xs font-bold shrink-0">منقضی</span>';
-        } else if (diffDays === 0) {
-          statusBadge = '<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (امروز)</span>';
         } else {
-          statusBadge = `<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (${diffDays} روز)</span>`;
+          active++;
+          if (diffDays <= 7) {
+            expiring++;
+            statusType = 'expiring';
+            statusBadge = `<span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (${diffDays === 0 ? 'امروز' : diffDays + ' روز'})</span>`;
+          } else {
+            statusBadge = `<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (${diffDays} روز)</span>`;
+          }
         }
 
         return `
-          <div class="user-card flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2.5 sm:px-5 sm:py-3.5 hover:border-slate-700 transition shadow-sm gap-2">
+          <div class="user-card user-row flex items-center justify-between glass-panel rounded-xl px-3 py-2.5 sm:px-5 sm:py-3.5 shadow-sm gap-2" data-status="${statusType}">
             
             <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
               <span class="font-mono text-xs sm:text-sm font-bold text-slate-500 w-5 sm:w-6 text-center shrink-0">#${index + 1}</span>
@@ -316,16 +466,16 @@
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
               ${statusBadge}
               
-              <button onclick="copySubLink('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition" title="کپی لینک ساب">
+              <button onclick="copySubLink('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition active:scale-90" title="کپی لینک ساب">
                 <i data-lucide="link" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="generateQR('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition" title="نمایش QR">
+              <button onclick="generateQR('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition active:scale-90" title="نمایش QR">
                 <i data-lucide="qr-code" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="openEditModal('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition" title="ویرایش">
+              <button onclick="openEditModal('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition active:scale-90" title="ویرایش">
                 <i data-lucide="edit-3" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="deleteUser('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 transition" title="حذف">
+              <button onclick="deleteUser('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 transition active:scale-90" title="حذف">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
             </div>
@@ -334,14 +484,47 @@
         `;
       }).join('');
 
+      updateStats(total, active, expiring, expired);
+      filterUsers();
       lucide.createIcons();
     }
 
-    function filterTable() {
+    function updateStats(total, active, expiring, expired) {
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statActive').innerText = active;
+      document.getElementById('statExpiring').innerText = expiring;
+      document.getElementById('statExpired').innerText = expired;
+    }
+
+    function setFilter(filter, el) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      el.classList.add('bg-blue-600', 'text-white');
+      el.classList.remove('text-slate-400');
+      filterUsers();
+    }
+
+    function filterUsers() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
       document.querySelectorAll('.user-card').forEach(card => {
-        const name = card.querySelector('.name-cell').innerText.toLowerCase();
-        card.style.display = name.includes(q) ? 'flex' : 'none';
+        const text = card.innerText.toLowerCase();
+        const status = card.getAttribute('data-status');
+
+        const matchesQuery = text.includes(q);
+        let matchesFilter = true;
+
+        if (currentFilter === 'active') {
+          matchesFilter = (status === 'active' || status === 'expiring');
+        } else if (currentFilter === 'expiring') {
+          matchesFilter = (status === 'expiring');
+        } else if (currentFilter === 'expired') {
+          matchesFilter = (status === 'expired');
+        }
+
+        card.style.display = (matchesQuery && matchesFilter) ? 'flex' : 'none';
       });
     }
 
@@ -356,7 +539,7 @@
     async function submitUpdate() {
       const u = document.getElementById('editUsername').value;
       const e = document.getElementById('editExpiry').value;
-      if (!e) return alert('تاریخ انقضا الزامی است!');
+      if (!e) return showToast('تاریخ انقضا الزامی است!', 'warn');
       
       usersData[u] = e;
       const ok = await syncWithGitHub();
@@ -371,7 +554,7 @@
       const e = document.getElementById('expiryInput').value;
 
       if (!u || !e) {
-        return alert('نام کاربری و تاریخ انقضا را مشخص کنید!');
+        return showToast('نام کاربری و تاریخ انقضا را مشخص کنید!', 'warn');
       }
 
       usersData[u] = e;
@@ -423,10 +606,10 @@
         const resData = await res.json();
         currentSha = resData.content.sha;
         localStorage.setItem('users_cache', JSON.stringify(usersData));
-        alert('✅ با موفقیت ذخیره شد!');
+        showToast('تغییرات با موفقیت در گیت‌هاب ذخیره شد');
         return true;
       } catch (err) {
-        alert('❌ خطا در سینک با گیت‌هاب: ' + err.message);
+        showToast('خطا در همگام‌سازی: ' + err.message, 'error');
         return false;
       }
     }
@@ -435,7 +618,7 @@
       const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
       try {
         await navigator.clipboard.writeText(subLink);
-        alert(`✅ لینک اشتراک «${u}» کپی شد.`);
+        showToast(`لینک اشتراک «${u}» کپی شد`);
       } catch (err) {
         prompt('لینک زیر را کپی کنید:', subLink);
       }
@@ -444,7 +627,7 @@
     function generateQR(u) {
       const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
       const container = document.getElementById("qrcode");
-      document.getElementById("qrModalTitle").innerText = `QR Code: ${u}`;
+      document.getElementById("qrModalTitle").innerText = `QR: ${u}`;
       container.innerHTML = "";
       
       new QRCode(container, {
@@ -459,13 +642,28 @@
       toggleModal('qrModal');
     }
 
+    function exportBackupJSON() {
+      if (Object.keys(usersData).length === 0) {
+        return showToast('داده‌ای برای خروجی وجود ندارد!', 'warn');
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(usersData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `users_backup_${dateStr}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('فایل بک‌آپ با موفقیت دانلود شد');
+    }
+
     function saveConfig() {
       const o = document.getElementById('ghOwner').value.trim();
       const r = document.getElementById('ghRepo').value.trim();
       const t = document.getElementById('ghToken').value.trim();
 
       if (!o || !r || !t) {
-        return alert('هر سه فیلد تنظیمات الزامی است!');
+        return showToast('هر سه فیلد تنظیمات الزامی است!', 'warn');
       }
 
       localStorage.setItem('gh_owner', o);
