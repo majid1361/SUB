@@ -1,21 +1,19 @@
 {
-  "name": "Turbo Admin Dashboard",
-  "short_name": "Turbo Admin",
-  "description": "پنل مدیریت کاربران سابسکریپشن",
+  "name": "SUB-Users",
+  "short_name": "SUB-Users",
   "start_url": "./admin.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/9068/9068642.png",
+      "src": "https://github.com/majid1361.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/9068/9068642.png",
+      "src": "https://github.com/majid1361.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
