@@ -160,7 +160,7 @@
         <button type="button" onclick="setQuickExpiry(1, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 text-slate-300 transition shrink-0">+۱ ماه</button>
         <button type="button" onclick="setQuickExpiry(3, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 text-slate-300 transition shrink-0">+۳ ماه</button>
         <button type="button" onclick="setQuickExpiry(12, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 text-slate-300 transition shrink-0">+۱ سال</button>
-        <button type="button" onclick="setQuickExpiry('2030', 'add')" class="px-2.5 py-1 bg-indigo-950/70 hover:bg-indigo-900/80 rounded-lg border border-indigo-800 text-indigo-300 transition shrink-0">۲۰۳۰ (طولانی)</button>
+        <button type="button" onclick="setQuickExpiry('2050', 'add')" class="px-2.5 py-1 bg-indigo-950/70 hover:bg-indigo-900/80 rounded-lg border border-indigo-800 text-indigo-300 transition shrink-0">۲۰۵۰ (نامحدود)</button>
       </div>
 
       <div class="border-t border-slate-800 pt-3 flex flex-col sm:flex-row gap-2.5 justify-between items-stretch sm:items-center">
@@ -321,8 +321,8 @@
       const picker = (target === 'edit') ? fpEdit : fpAdd;
       if (!picker) return;
 
-      if (val === '2030') {
-        picker.setDate('2030-01-01');
+      if (val === '2050') {
+        picker.setDate('2050-01-01');
         return;
       }
 
