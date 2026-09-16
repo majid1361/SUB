@@ -14,9 +14,9 @@
 
   <div class="max-w-4xl w-full mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-2xl">
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-2xl gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
           <i data-lucide="shield" class="text-white"></i>
         </div>
         <div>
@@ -24,11 +24,11 @@
           <p class="text-xs text-slate-400">پنل مدیریت هوشمند</p>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 hover:bg-slate-700" title="رفرش دیتا">
-            <i data-lucide="refresh-cw" class="w-4 h-4 text-emerald-400"></i>
+      <div class="flex items-center gap-2">
+        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 transition" title="رفرش داده‌ها">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
+        <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700 transition">
           <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
         </button>
       </div>
@@ -43,7 +43,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
         <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
-        <button onclick="addUserAction()" class="bg-blue-400 hover:bg-blue-500 text-slate-950 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20">افزودن کاربر</button>
+        <button onclick="addUserAction()" class="bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20 transition">افزودن کاربر</button>
       </div>
     </div>
 
@@ -51,50 +51,64 @@
     <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden">
       <table class="w-full text-right text-sm">
         <thead class="bg-slate-950/60 text-slate-400 uppercase text-xs">
-          <tr><th class="py-3 px-5">نام</th><th class="py-3 px-5">انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">عملیات</th></tr>
+          <tr>
+            <th class="py-3 px-5">نام</th>
+            <th class="py-3 px-5">انقضا</th>
+            <th class="py-3 px-5">وضعیت</th>
+            <th class="py-3 px-5 text-center">عملیات</th>
+          </tr>
         </thead>
-        <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">در حال اتصال...</td></tr></tbody>
+        <tbody id="userTableBody">
+          <tr><td colspan="4" class="text-center py-8 text-slate-500">در حال اتصال...</td></tr>
+        </tbody>
       </table>
     </div>
   </div>
 
   <!-- Edit User Modal -->
   <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6">
-      <h3 class="text-lg font-bold mb-4">ویرایش کاربر</h3>
-      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm text-slate-500 cursor-not-allowed">
-      <input id="editExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+      <h3 class="text-lg font-bold mb-4 text-white">ویرایش کاربر</h3>
+      <label class="text-xs text-slate-400 mb-1 block">نام کاربری (غیرقابل تغییر):</label>
+      <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm text-slate-500 cursor-not-allowed outline-none">
+      <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا جدید:</label>
+      <input id="editExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm text-white focus:border-blue-500 outline-none">
       <div class="flex gap-2">
-        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2 rounded-xl text-sm">انصراف</button>
-        <button onclick="submitUpdate()" class="flex-1 bg-blue-500 py-2 rounded-xl font-bold text-sm text-white">به‌روزرسانی کاربر</button>
+        <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700 transition">انصراف</button>
+        <button onclick="submitUpdate()" class="flex-1 bg-blue-500 py-2 rounded-xl font-bold text-sm text-white hover:bg-blue-600 transition">به‌روزرسانی</button>
       </div>
     </div>
   </div>
 
   <!-- QR Modal -->
   <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 flex flex-col items-center">
-      <h3 class="text-lg font-bold mb-4 text-white">QR Code اختصاصی</h3>
-      <div id="qrcode" class="bg-white p-2 rounded-xl mb-4"></div>
-      <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700">بستن</button>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 flex flex-col items-center shadow-2xl">
+      <h3 id="qrModalTitle" class="text-lg font-bold mb-4 text-white">QR Code ساب</h3>
+      <div id="qrcode" class="bg-white p-3 rounded-xl mb-4 flex items-center justify-center min-h-[220px]"></div>
+      <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700 transition">بستن</button>
     </div>
   </div>
 
   <!-- Config Modal -->
   <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6">
-      <h3 class="text-lg font-bold mb-4">تنظیمات اتصال</h3>
-      <input id="ghOwner" placeholder="Owner" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
-      <input id="ghRepo" placeholder="Repo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
-      <input id="ghToken" type="password" placeholder="PAT Token" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm">
-      <button onclick="saveConfig()" class="w-full bg-blue-500 py-2 rounded-xl font-bold text-sm text-white">ذخیره و اتصال</button>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl">
+      <h3 class="text-lg font-bold mb-4 text-white">تنظیمات اتصال به گیت‌هاب</h3>
+      <input id="ghOwner" placeholder="Owner (مثلاً majid1361)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm focus:border-blue-500 outline-none">
+      <input id="ghRepo" placeholder="Repo (مثلاً SUB)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm focus:border-blue-500 outline-none">
+      <input id="ghToken" type="password" placeholder="PAT Token (ghp_...)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm focus:border-blue-500 outline-none">
+      <button onclick="saveConfig()" class="w-full bg-blue-500 hover:bg-blue-600 py-2.5 rounded-xl font-bold text-sm text-white transition">ذخیره و اتصال</button>
     </div>
   </div>
 
   <script>
-    let usersData = {}, currentSha = "";
+    let usersData = {};
+    let currentSha = "";
 
-    function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); document.getElementById(id).classList.toggle('flex'); }
+    function toggleModal(id) {
+      const modal = document.getElementById(id);
+      modal.classList.toggle('hidden');
+      modal.classList.toggle('flex');
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -102,94 +116,257 @@
       document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
       document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
       
-      if (localStorage.getItem('gh_token')) loadUsersFromGitHub();
-      else toggleModal('configModal');
+      if (localStorage.getItem('gh_token')) {
+        loadUsersFromGitHub();
+      } else {
+        toggleModal('configModal');
+      }
     });
 
     async function loadUsersFromGitHub(force = false) {
-      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
+      const o = localStorage.getItem('gh_owner');
+      const r = localStorage.getItem('gh_repo');
+      const t = localStorage.getItem('gh_token');
       const tbody = document.getElementById('userTableBody');
-      
-      const cached = localStorage.getItem('users_cache');
-      if (cached && !force) {
-        usersData = JSON.parse(cached);
-        renderTable();
+
+      if (!o || !r || !t) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-amber-400">لطفاً ابتدا تنظیمات اتصال را وارد کنید.</td></tr>';
         return;
       }
 
-      if (!o || !r || !t) return;
+      const cached = localStorage.getItem('users_cache');
+      if (cached && !force) {
+        try {
+          usersData = JSON.parse(cached);
+          renderTable();
+          // واکشی SHA در پس‌زمینه بدون بلاک کردن UI
+          fetchShaSilently(o, r, t);
+          return;
+        } catch (e) {
+          console.warn("Cache parse failed, loading fresh...");
+        }
+      }
+
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">در حال برقراری ارتباط با مخزن...</td></tr>';
+
       try {
-        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, { headers: { Authorization: `Bearer ${t}` }});
-        if (!res.ok) throw new Error('فایل یافت نشد یا توکن اشتباه است');
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
+          headers: { 
+            'Authorization': `Bearer ${t}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!res.ok) {
+          if (res.status === 404) throw new Error('فایل users.json در این مخزن پیدا نشد');
+          if (res.status === 401) throw new Error('توکن گیت‌هاب معتبر نیست یا منقضی شده');
+          throw new Error(`خطای سرور: کد ${res.status}`);
+        }
+
         const data = await res.json();
         currentSha = data.sha;
         usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         localStorage.setItem('users_cache', JSON.stringify(usersData));
         renderTable();
-      } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">${err.message}</td></tr>`; }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">❌ ${err.message}</td></tr>`;
+      }
+    }
+
+    async function fetchShaSilently(o, r, t) {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
+          headers: { 'Authorization': `Bearer ${t}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          currentSha = data.sha;
+        }
+      } catch (e) {
+        console.warn("Silent SHA fetch error:", e);
+      }
     }
 
     function renderTable() {
       const tbody = document.getElementById('userTableBody');
-      tbody.innerHTML = Object.entries(usersData).map(([u, e]) => `
-        <tr class="border-b border-slate-800/50 user-row">
-          <td class="py-3 px-5 font-bold name-cell">${u}</td>
-          <td class="py-3 px-5 font-mono text-xs text-slate-400">${e}</td>
-          <td class="py-3 px-5 text-xs">${new Date(e) < new Date() ? '<span class="text-rose-400">منقضی</span>' : '<span class="text-emerald-400">فعال</span>'}</td>
-          <td class="py-3 px-5 flex gap-3">
-            <button onclick="copySubLink('${u}')" class="text-emerald-400 hover:text-emerald-300" title="کپی لینک"><i data-lucide="link" class="w-4 h-4"></i></button>
-            <button onclick="generateQR('${u}')" class="text-indigo-400 hover:text-indigo-300" title="نمایش QR"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
-            <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300" title="ویرایش"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400" title="حذف"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </td>
-        </tr>
-      `).join('');
+      const entries = Object.entries(usersData);
+
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-500">هیچ کاربری ثبت نشده است.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = entries.map(([u, e]) => {
+        const isExpired = new Date(e) < new Date();
+        return `
+          <tr class="border-b border-slate-800/50 hover:bg-slate-800/20 transition user-row">
+            <td class="py-3.5 px-5 font-bold text-white name-cell">${u}</td>
+            <td class="py-3.5 px-5 font-mono text-xs text-slate-400">${e}</td>
+            <td class="py-3.5 px-5 text-xs">
+              ${isExpired 
+                ? '<span class="px-2 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">منقضی</span>' 
+                : '<span class="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">فعال</span>'}
+            </td>
+            <td class="py-3.5 px-5">
+              <div class="flex items-center justify-center gap-3">
+                <button onclick="copySubLink('${u}')" class="text-emerald-400 hover:text-emerald-300 transition" title="کپی لینک ساب">
+                  <i data-lucide="link" class="w-4 h-4"></i>
+                </button>
+                <button onclick="generateQR('${u}')" class="text-indigo-400 hover:text-indigo-300 transition" title="نمایش QR کد">
+                  <i data-lucide="qr-code" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300 transition" title="ویرایش تاریخ">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+                <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400 transition" title="حذف کاربر">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
       lucide.createIcons();
+    }
+
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      document.querySelectorAll('.user-row').forEach(row => {
+        const name = row.querySelector('.name-cell').innerText.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+    }
+
+    function openEditModal(u) {
+      document.getElementById('editUsername').value = u;
+      document.getElementById('editExpiry').value = usersData[u] || '';
+      toggleModal('editModal');
+    }
+
+    async function submitUpdate() {
+      const u = document.getElementById('editUsername').value;
+      const e = document.getElementById('editExpiry').value;
+      if (!e) return alert('تاریخ انقضا الزامی است!');
+      
+      usersData[u] = e;
+      const ok = await syncWithGitHub();
+      if (ok) {
+        toggleModal('editModal');
+        renderTable();
+      }
+    }
+
+    async function addUserAction() {
+      const u = document.getElementById('usernameInput').value.trim();
+      const e = document.getElementById('expiryInput').value;
+
+      if (!u || !e) {
+        return alert('نام کاربری و تاریخ انقضا را مشخص کنید!');
+      }
+
+      usersData[u] = e;
+      const ok = await syncWithGitHub();
+      if (ok) {
+        document.getElementById('usernameInput').value = '';
+        document.getElementById('expiryInput').value = '';
+        renderTable();
+      }
+    }
+
+    async function deleteUser(u) {
+      if (!confirm(`آیا از حذف کاربر «${u}» مطمئن هستید؟`)) return;
+      delete usersData[u];
+      const ok = await syncWithGitHub();
+      if (ok) renderTable();
+    }
+
+    async function syncWithGitHub() {
+      const o = localStorage.getItem('gh_owner');
+      const r = localStorage.getItem('gh_repo');
+      const t = localStorage.getItem('gh_token');
+
+      try {
+        const utf8Bytes = new TextEncoder().encode(JSON.stringify(usersData, null, 2));
+        let binaryStr = "";
+        utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+        const base64Content = btoa(binaryStr);
+
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${t}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify({
+            message: 'Update users via Admin Panel',
+            content: base64Content,
+            sha: currentSha
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `خطا در ذخیره‌سازی: کد ${res.status}`);
+        }
+
+        const resData = await res.json();
+        currentSha = resData.content.sha;
+        localStorage.setItem('users_cache', JSON.stringify(usersData));
+        alert('✅ با موفقیت روی گیت‌هاب ذخیره شد!');
+        return true;
+      } catch (err) {
+        alert('❌ خطا در سینک با گیت‌هاب: ' + err.message);
+        return false;
+      }
     }
 
     async function copySubLink(u) {
       const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
-      try { await navigator.clipboard.writeText(subLink); alert(`✅ لینک ${u} کپی شد!`); } 
-      catch (err) { alert('خطا در کپی'); }
+      try {
+        await navigator.clipboard.writeText(subLink);
+        alert(`✅ لینک اشتراک «${u}» در کلیپ‌بورد کپی شد.`);
+      } catch (err) {
+        prompt('لینک زیر را کپی کنید:', subLink);
+      }
     }
 
     function generateQR(u) {
       const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
       const container = document.getElementById("qrcode");
+      document.getElementById("qrModalTitle").innerText = `QR Code: ${u}`;
       container.innerHTML = "";
-      new QRCode(container, { text: subLink, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.H });
+      
+      new QRCode(container, {
+        text: subLink,
+        width: 190,
+        height: 190,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
       toggleModal('qrModal');
     }
 
-    // ... (سایر توابع)
-    function filterTable() { const q = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.user-row').forEach(r => r.style.display = r.querySelector('.name-cell').innerText.toLowerCase().includes(q) ? '' : 'none'); }
-    function openEditModal(u) { document.getElementById('editUsername').value = u; document.getElementById('editExpiry').value = usersData[u]; toggleModal('editModal'); }
-    async function submitUpdate() { const u = document.getElementById('editUsername').value; const e = document.getElementById('editExpiry').value; if (!confirm(`ویرایش ${u}؟`)) return; usersData[u] = e; await syncWithGitHub(); toggleModal('editModal'); renderTable(); }
-    async function addUserAction() { const u = document.getElementById('usernameInput').value.trim(); const e = document.getElementById('expiryInput').value; if (!u || !e) return alert('پر کن!'); usersData[u] = e; await syncWithGitHub(); renderTable(); }
-    async function deleteUser(u) { if (!confirm(`حذف ${u}؟`)) return; delete usersData[u]; await syncWithGitHub(); renderTable(); }
-    async function syncWithGitHub() {
-      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
-      try {
-        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, { method: 'PUT', headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha }) });
-        if (!res.ok) throw new Error('خطا');
-        currentSha = (await res.json()).content.sha;
-        localStorage.setItem('users_cache', JSON.stringify(usersData));
-        alert('✅ با موفقیت ذخیره شد!');
-      } catch (e) { alert('خطا: ' + e.message); }
+    function saveConfig() {
+      const o = document.getElementById('ghOwner').value.trim();
+      const r = document.getElementById('ghRepo').value.trim();
+      const t = document.getElementById('ghToken').value.trim();
+
+      if (!o || !r || !t) {
+        return alert('هر سه فیلد تنظیمات الزامی است!');
+      }
+
+      localStorage.setItem('gh_owner', o);
+      localStorage.setItem('gh_repo', r);
+      localStorage.setItem('gh_token', t);
+      localStorage.removeItem('users_cache'); // پاکسازی کش قبلی برای لود مجدد
+
+      toggleModal('configModal');
+      loadUsersFromGitHub(true);
     }
-    function saveConfig() { localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim()); toggleModal('('usernameInput').value.trim(); const e = document.getElementById('expiryInput').value; if (!u || !e) return alert('پر کن!'); usersData[u] = e; await syncWithGitHub(); renderTable(); }
-    async function deleteUser(u) { if (!confirm(`حذف ${u}؟`)) return; delete usersData[u]; await syncWithGitHub(); renderTable(); }
-    async function syncWithGitHub() {
-      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
-      try {
-        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, { method: 'PUT', headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha }) });
-        if (!res.ok) throw new Error('خطا');
-        currentSha = (await res.json()).content.sha;
-        localStorage.setItem('users_cache', JSON.stringify(usersData));
-        alert('✅ با موفقیت ذخیره شد!');
-      } catch (e) { alert('خطا: ' + e.message); }
-    }
-    function saveConfig() { localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim()); toggleModal('configModal'); loadUsersFromGitHub(true); }
   </script>
 </body>
 </html>
