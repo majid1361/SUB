@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StealthyStream | پنل مدیریت</title>
+  <title>SUB Users | پنل مدیریت</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -15,26 +15,31 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-2xl">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center">
           <i data-lucide="shield" class="text-white"></i>
         </div>
         <div>
-          <h1 class="text-xl font-black text-white">StealthyStream</h1>
-          <p class="text-xs text-slate-400">پنل مدیریت</p>
+          <h1 class="text-xl font-black text-white">SUB Users</h1>
+          <p class="text-xs text-slate-400">پنل مدیریت هوشمند</p>
         </div>
       </div>
       <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
-        <i data-lucide="key" class="w-4 h-4 text-cyan-400"></i> تنظیمات
+        <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات اتصال
       </button>
     </div>
 
-    <!-- Add User -->
-    <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
-      <h2 class="text-sm font-bold text-cyan-400 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i> افزودن کاربر جدید</h2>
+    <!-- Search & Add User Area -->
+    <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-4">
+      <!-- Search -->
+      <div class="relative">
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی کاربر..." class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-10 py-2.5 text-sm focus:border-blue-500 outline-none">
+        <i data-lucide="search" class="w-4 h-4 absolute right-4 top-3 text-slate-500"></i>
+      </div>
+
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <input type="text" id="usernameInput" placeholder="نام کاربری (انگلیسی)" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-cyan-500 outline-none">
-        <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-cyan-500 outline-none">
-        <button onclick="addOrUpdateUser()" class="bg-cyan-600 hover:bg-cyan-500 py-2.5 rounded-xl font-bold text-sm text-white">ثبت در لیست</button>
+        <input type="text" id="usernameInput" placeholder="نام کاربری" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
+        <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
+        <button onclick="saveUserAction()" class="bg-blue-400 hover:bg-blue-500 text-slate-950 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/20">افزودن کاربر</button>
       </div>
     </div>
 
@@ -46,17 +51,10 @@
       </div>
       <table class="w-full text-right text-sm">
         <thead class="bg-slate-950/60 text-slate-400 uppercase text-xs">
-          <tr><th class="py-3 px-5">نام</th><th class="py-3 px-5">انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">حذف</th></tr>
+          <tr><th class="py-3 px-5">نام</th><th class="py-3 px-5">انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">عملیات</th></tr>
         </thead>
         <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">در حال لود...</td></tr></tbody>
       </table>
-    </div>
-
-    <!-- Footer -->
-    <div class="flex justify-end bg-slate-900/30 border border-slate-800/60 p-4 rounded-2xl">
-      <button id="commitBtn" onclick="commitChangesToGitHub()" class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
-        <i data-lucide="upload-cloud" class="w-4 h-4"></i> ذخیره تغییرات روی گیت‌هاب
-      </button>
     </div>
   </div>
 
@@ -67,36 +65,23 @@
       <input id="ghOwner" placeholder="Owner" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
       <input id="ghRepo" placeholder="Repo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
       <input id="ghToken" type="password" placeholder="PAT Token" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm">
-      <button onclick="saveConfig()" class="w-full bg-cyan-600 py-2 rounded-xl font-bold text-sm text-white">ذخیره و اتصال</button>
+      <button onclick="saveConfig()" class="w-full bg-blue-500 py-2 rounded-xl font-bold text-sm text-white">ذخیره و اتصال</button>
     </div>
   </div>
 
   <script>
     let usersData = {}, currentSha = "";
 
-    function toggleModal(id) { 
-      const modal = document.getElementById(id);
-      modal.classList.toggle('hidden'); 
-      modal.classList.toggle('flex'); 
-    }
+    function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); document.getElementById(id).classList.toggle('flex'); }
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
       document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
       document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
-      
-      if (!localStorage.getItem('gh_token')) toggleModal('configModal');
-      else loadUsersFromGitHub();
+      if (localStorage.getItem('gh_token')) loadUsersFromGitHub();
+      else toggleModal('configModal');
     });
-
-    function saveConfig() {
-      localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
-      localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
-      localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
-      toggleModal('configModal');
-      loadUsersFromGitHub();
-    }
 
     async function loadUsersFromGitHub() {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
@@ -113,39 +98,69 @@
     function renderTable() {
       const tbody = document.getElementById('userTableBody');
       tbody.innerHTML = Object.entries(usersData).map(([u, e]) => `
-        <tr class="border-b border-slate-800/50">
-          <td class="py-3 px-5 font-bold">${u}</td>
+        <tr class="border-b border-slate-800/50 user-row">
+          <td class="py-3 px-5 font-bold name-cell">${u}</td>
           <td class="py-3 px-5 font-mono text-xs text-slate-400">${e}</td>
           <td class="py-3 px-5 text-xs">${new Date(e) < new Date() ? '<span class="text-rose-400">منقضی</span>' : '<span class="text-emerald-400">فعال</span>'}</td>
-          <td class="py-3 px-5"><button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
+          <td class="py-3 px-5 flex gap-2">
+            <button onclick="editUser('${u}')" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-luc {
+      document.getElementById('usernameInput').value = u;
+      document.getElementById('expiryInput').value = usersData[u];
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function addOrUpdateUser() {
+    async function saveUserAction() {
+      const u = document.getElementById('usernameInput').value.trim();
+      const e = name = row.querySelector('.name-cell').innerText.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+    }
+
+    function editUser(u) {
+      document.getElementById('usernameInput').value = u;
+      document.getElementById('expiryInput').value = usersData[u];
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function saveUserAction() {
       const u = document.getElementById('usernameInput').value.trim();
       const e = document.getElementById('expiryInput').value;
-      if (!u || !e) { alert('هر دو فیلد نام و تاریخ ضروری هستند!'); return; }
+      if (!u || !e) return alert('نام و تاریخ ضروری است!');
+      if (!confirm(`آیا از ثبت/ویرایش کاربر ${u} اطمینان دارید؟`)) return;
+      
       usersData[u] = e;
+      await syncWithGitHub();
       renderTable();
     }
 
-    function deleteUser(u) { delete usersData[u]; renderTable(); }
+    async function deleteUser(u) {
+      if (!confirm(`آیا از حذف کاربر ${u} مطمئن هستید؟`)) return;
+      delete usersData[u];
+      await syncWithGitHub();
+      renderTable();
+    }
 
-    async function commitChangesToGitHub() {
-      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token'), btn = document.getElementById('commitBtn');
-      btn.disabled = true; btn.innerText = 'در حال ثبت...';
+    async function syncWithGitHub() {
+      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
           headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
+          body: JSON.stringify({ message: 'Auto-sync from WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
         });
         if (!res.ok) throw new Error('خطا در ذخیره سازی');
         currentSha = (await res.json()).content.sha;
-        alert('✅ با موفقیت روی گیت‌هاب ذخیره شد!');
-      } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i> ذخیره تغییرات روی گیت‌هاب'; }
+        alert('✅ با موفقیت ذخیره شد!');
+      } catch (e) { alert('خطا: ' + e.message); }
+    }
+
+    function saveConfig() {
+      localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
+      localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
+      localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
+      toggleModal('configModal');
+      loadUsersFromGitHub();
     }
   </script>
 </body>
