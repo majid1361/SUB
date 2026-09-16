@@ -7,9 +7,23 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- کتابخانه تقویم پاپ‌آپ مدرن با تم تاریک برای دسکتاپ -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style>
     body { font-family: 'Vazirmatn', sans-serif; }
+    /* استایل اختصاصی تقویم دارک برای هماهنگی با تم پنل */
+    .flatpickr-calendar {
+      background: #0f172a !important;
+      border: 1px solid #1e293b !important;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5) !important;
+      border-radius: 1rem !important;
+      font-family: 'Vazirmatn', sans-serif !important;
+    }
   </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen p-2 sm:p-6">
@@ -43,16 +57,32 @@
         <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی سریع کاربر..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-10 py-2.5 text-sm sm:text-base text-white focus:border-blue-500 outline-none transition">
         <i data-lucide="search" class="w-4 h-4 absolute right-3.5 top-3.5 text-slate-500"></i>
       </div>
+      
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white">
-        <input type="date" id="expiryInput" class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white">
+        
+        <!-- فیلد تاریخ با قابلیت کلیک سراسری و باز شدن تقویم -->
+        <div class="relative">
+          <input type="text" id="expiryInput" placeholder="انتخاب تاریخ انقضا..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white cursor-pointer" readonly>
+          <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3.5 text-slate-500 pointer-events-none"></i>
+        </div>
+
         <button onclick="addUserAction()" class="bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-bold text-sm sm:text-base shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2">
           <i data-lucide="user-plus" class="w-4 h-4"></i> افزودن کاربر
         </button>
       </div>
+
+      <!-- دکمه‌های سریع تاریخ برای راحتی کار -->
+      <div class="flex items-center gap-2 pt-1 text-xs text-slate-400 overflow-x-auto">
+        <span class="shrink-0 font-bold text-slate-500">تاریخ سریع:</span>
+        <button onclick="setQuickExpiry(1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
+        <button onclick="setQuickExpiry(3)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
+        <button onclick="setQuickExpiry(12)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
+        <button onclick="setQuickExpiry('2030')" class="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/60 rounded-lg border border-indigo-800/60 text-indigo-300 transition shrink-0">۲۰۳۰ (طولانی)</button>
+      </div>
     </div>
 
-    <!-- Users List Container (1 Row Per User on Mobile) -->
+    <!-- Users List Container -->
     <div id="userListContainer" class="space-y-2.5">
       <div class="text-center py-10 text-slate-500 text-sm">در حال اتصال...</div>
     </div>
@@ -67,8 +97,13 @@
       </h3>
       <label class="text-xs text-slate-400 mb-1 block">نام کاربری:</label>
       <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 mb-3 text-sm text-slate-400 cursor-not-allowed outline-none font-bold">
+      
       <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا جدید:</label>
-      <input id="editExpiry" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 mb-5 text-sm text-white focus:border-blue-500 outline-none">
+      <div class="relative mb-5">
+        <input id="editExpiry" type="text" placeholder="انتخاب تاریخ جدید..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none cursor-pointer" readonly>
+        <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3 text-slate-500 pointer-events-none"></i>
+      </div>
+
       <div class="flex gap-2">
         <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition">انصراف</button>
         <button onclick="submitUpdate()" class="flex-1 bg-blue-600 py-2.5 rounded-xl font-bold text-xs text-white hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">به‌روزرسانی</button>
@@ -101,6 +136,7 @@
   <script>
     let usersData = {};
     let currentSha = "";
+    let fpAdd, fpEdit;
 
     function toggleModal(id) {
       const modal = document.getElementById(id);
@@ -110,6 +146,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      initDatePickers();
+
       document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
       document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
       document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
@@ -120,6 +158,34 @@
         toggleModal('configModal');
       }
     });
+
+    // راه‌اندازی تقویم پاپ‌آپ
+    function initDatePickers() {
+      fpAdd = flatpickr("#expiryInput", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        disableMobile: false // روی گوشی از دیالوگ محلی اندروید و روی کامپیوتر از پاپ‌آپ دارک استفاده می‌کنه
+      });
+
+      fpEdit = flatpickr("#editExpiry", {
+        dateFormat: "Y-m-d",
+        disableMobile: false
+      });
+    }
+
+    // تابع انتخاب سریع تاریخ
+    function setQuickExpiry(val) {
+      if (val === '2030') {
+        fpAdd.setDate('2030-01-01');
+      } else {
+        const d = new Date();
+        d.setMonth(d.getMonth() + val);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        fpAdd.setDate(`${yyyy}-${mm}-${dd}`);
+      }
+    }
 
     async function loadUsersFromGitHub(force = false) {
       const o = localStorage.getItem('gh_owner');
@@ -198,7 +264,6 @@
         return `
           <div class="user-card flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2.5 sm:px-5 sm:py-3.5 hover:border-slate-700 transition shadow-sm gap-2">
             
-            <!-- بخش راست: شماره ردیف، نام و تاریخ انقضا -->
             <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
               <span class="font-mono text-xs sm:text-sm font-bold text-slate-500 w-5 sm:w-6 text-center shrink-0">#${index + 1}</span>
               <div class="min-w-0">
@@ -207,7 +272,6 @@
               </div>
             </div>
 
-            <!-- بخش چپ: برچسب وضعیت و دکمه‌های عملیات فیکس -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
               ${isExpired 
                 ? '<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] sm:text-xs font-bold">منقضی</span>' 
@@ -244,7 +308,9 @@
 
     function openEditModal(u) {
       document.getElementById('editUsername').value = u;
-      document.getElementById('editExpiry').value = usersData[u] || '';
+      const expiry = usersData[u] || '';
+      document.getElementById('editExpiry').value = expiry;
+      if (fpEdit) fpEdit.setDate(expiry);
       toggleModal('editModal');
     }
 
@@ -273,7 +339,7 @@
       const ok = await syncWithGitHub();
       if (ok) {
         document.getElementById('usernameInput').value = '';
-        document.getElementById('expiryInput').value = '';
+        if (fpAdd) fpAdd.clear();
         renderUsers();
       }
     }
