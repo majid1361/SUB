@@ -20,21 +20,21 @@
         </div>
         <div>
           <h1 class="text-xl font-black text-white">StealthyStream</h1>
-          <p class="text-xs text-slate-400">پنل مدیریت تحت وب (GitHub API)</p>
+          <p class="text-xs text-slate-400">پنل مدیریت</p>
         </div>
       </div>
       <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
-        <i data-lucide="key" class="w-4 h-4 text-cyan-400"></i> تنظیمات توکن
+        <i data-lucide="key" class="w-4 h-4 text-cyan-400"></i> تنظیمات
       </button>
     </div>
 
-    <!-- Actions -->
+    <!-- Add User -->
     <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
-      <h2 class="text-sm font-bold text-cyan-400 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i> افزودن کاربر</h2>
+      <h2 class="text-sm font-bold text-cyan-400 mb-4 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i> افزودن کاربر جدید</h2>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <input type="text" id="usernameInput" placeholder="شناسه کاربر" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-cyan-500 outline-none">
+        <input type="text" id="usernameInput" placeholder="نام کاربری (انگلیسی)" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-cyan-500 outline-none">
         <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-cyan-500 outline-none">
-        <button onclick="addOrUpdateUser()" class="bg-cyan-600 hover:bg-cyan-500 py-2.5 rounded-xl font-bold text-sm">ثبت در لیست</button>
+        <button onclick="addOrUpdateUser()" class="bg-cyan-600 hover:bg-cyan-500 py-2.5 rounded-xl font-bold text-sm text-white">ثبت در لیست</button>
       </div>
     </div>
 
@@ -46,13 +46,13 @@
       </div>
       <table class="w-full text-right text-sm">
         <thead class="bg-slate-950/60 text-slate-400 uppercase text-xs">
-          <tr><th class="py-3 px-5">نام کاربر</th><th class="py-3 px-5">تاریخ انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">عملیات</th></tr>
+          <tr><th class="py-3 px-5">نام</th><th class="py-3 px-5">انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">حذف</th></tr>
         </thead>
-        <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">بارگذاری...</td></tr></tbody>
+        <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">در حال لود...</td></tr></tbody>
       </table>
     </div>
 
-    <!-- Commit Footer -->
+    <!-- Footer -->
     <div class="flex justify-end bg-slate-900/30 border border-slate-800/60 p-4 rounded-2xl">
       <button id="commitBtn" onclick="commitChangesToGitHub()" class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
         <i data-lucide="upload-cloud" class="w-4 h-4"></i> ذخیره تغییرات روی گیت‌هاب
@@ -60,24 +60,32 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Config Modal -->
   <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6">
       <h3 class="text-lg font-bold mb-4">تنظیمات اتصال</h3>
-      <input id="ghOwner" placeholder="Owner (مثلاً majid)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
-      <input id="ghRepo" placeholder="Repo (مثلاً StealthyStream)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
-      <input id="ghToken" type="password" placeholder="Personal Access Token" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm">
-      <button onclick="saveConfig()" class="w-full bg-cyan-600 py-2 rounded-xl font-bold text-sm">ذخیره و اتصال</button>
+      <input id="ghOwner" placeholder="Owner" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
+      <input id="ghRepo" placeholder="Repo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-3 text-sm">
+      <input id="ghToken" type="password" placeholder="PAT Token" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 mb-4 text-sm">
+      <button onclick="saveConfig()" class="w-full bg-cyan-600 py-2 rounded-xl font-bold text-sm text-white">ذخیره و اتصال</button>
     </div>
   </div>
 
   <script>
     let usersData = {}, currentSha = "";
 
-    function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); document.getElementById(id).classList.toggle('flex'); }
+    function toggleModal(id) { 
+      const modal = document.getElementById(id);
+      modal.classList.toggle('hidden'); 
+      modal.classList.toggle('flex'); 
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
+      document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
+      document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+      
       if (!localStorage.getItem('gh_token')) toggleModal('configModal');
       else loadUsersFromGitHub();
     });
@@ -92,7 +100,6 @@
 
     async function loadUsersFromGitHub() {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
-      if (!o || !r || !t) return;
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, { headers: { Authorization: `Bearer ${t}` }});
         if (!res.ok) throw new Error('فایل یافت نشد');
@@ -100,7 +107,7 @@
         currentSha = data.sha;
         usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         renderTable();
-      } catch (err) { alert('خطا در دریافت لیست: ' + err.message); }
+      } catch (err) { alert('خطا: ' + err.message); }
     }
 
     function renderTable() {
@@ -117,8 +124,9 @@
     }
 
     function addOrUpdateUser() {
-      const u = document.getElementById('usernameInput').value.trim(), e = document.getElementById('expiryInput').value;
-      if (!u || !e) return alert('فیلدها خالیه!');
+      const u = document.getElementById('usernameInput').value.trim();
+      const e = document.getElementById('expiryInput').value;
+      if (!u || !e) { alert('هر دو فیلد نام و تاریخ ضروری هستند!'); return; }
       usersData[u] = e;
       renderTable();
     }
@@ -134,9 +142,9 @@
           headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
         });
-        if (!res.ok) throw new Error('خطا در ذخیره');
+        if (!res.ok) throw new Error('خطا در ذخیره سازی');
         currentSha = (await res.json()).content.sha;
-        alert('✅ با موفقیت ثبت شد!');
+        alert('✅ با موفقیت روی گیت‌هاب ذخیره شد!');
       } catch (e) { alert(e.message); } finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="upload-cloud" class="w-4 h-4"></i> ذخیره تغییرات روی گیت‌هاب'; }
     }
   </script>
