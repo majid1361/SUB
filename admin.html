@@ -24,18 +24,16 @@
         </div>
       </div>
       <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
-        <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات اتصال
+        <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
       </button>
     </div>
 
     <!-- Search & Add User Area -->
     <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-4">
-      <!-- Search -->
       <div class="relative">
         <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="جستجوی کاربر..." class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-10 py-2.5 text-sm focus:border-blue-500 outline-none">
         <i data-lucide="search" class="w-4 h-4 absolute right-4 top-3 text-slate-500"></i>
       </div>
-
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <input type="text" id="usernameInput" placeholder="نام کاربری" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
         <input type="date" id="expiryInput" class="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:border-blue-500 outline-none">
@@ -53,7 +51,7 @@
         <thead class="bg-slate-950/60 text-slate-400 uppercase text-xs">
           <tr><th class="py-3 px-5">نام</th><th class="py-3 px-5">انقضا</th><th class="py-3 px-5">وضعیت</th><th class="py-3 px-5">عملیات</th></tr>
         </thead>
-        <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">در حال لود...</td></tr></tbody>
+        <tbody id="userTableBody"><tr><td colspan="4" class="text-center py-8 text-slate-500">در حال اتصال به گیت‌هاب...</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -85,14 +83,17 @@
 
     async function loadUsersFromGitHub() {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
+      const tbody = document.getElementById('userTableBody');
+      if(!o || !r || !t) return;
+      
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, { headers: { Authorization: `Bearer ${t}` }});
-        if (!res.ok) throw new Error('فایل یافت نشد');
+        if (!res.ok) throw new Error(`خطای ${res.status}: ${res.statusText}`);
         const data = await res.json();
         currentSha = data.sha;
         usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         renderTable();
-      } catch (err) { alert('خطا: ' + err.message); }
+      } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">خطا در بارگذاری: ${err.message}</td></tr>`; }
     }
 
     function renderTable() {
@@ -104,15 +105,17 @@
           <td class="py-3 px-5 text-xs">${new Date(e) < new Date() ? '<span class="text-rose-400">منقضی</span>' : '<span class="text-emerald-400">فعال</span>'}</td>
           <td class="py-3 px-5 flex gap-2">
             <button onclick="editUser('${u}')" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-luc {
-      document.getElementById('usernameInput').value = u;
-      document.getElementById('expiryInput').value = usersData[u];
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
     }
 
-    async function saveUserAction() {
-      const u = document.getElementById('usernameInput').value.trim();
-      const e = name = row.querySelector('.name-cell').innerText.toLowerCase();
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.user-row').forEach(row => {
+        const name = row.querySelector('.name-cell').innerText.toLowerCase();
         row.style.display = name.includes(q) ? '' : 'none';
       });
     }
@@ -127,8 +130,7 @@
       const u = document.getElementById('usernameInput').value.trim();
       const e = document.getElementById('expiryInput').value;
       if (!u || !e) return alert('نام و تاریخ ضروری است!');
-      if (!confirm(`آیا از ثبت/ویرایش کاربر ${u} اطمینان دارید؟`)) return;
-      
+      if (!confirm(`آیا از تغییر کاربر ${u} مطمئن هستید؟`)) return;
       usersData[u] = e;
       await syncWithGitHub();
       renderTable();
@@ -147,11 +149,11 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
           headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'Auto-sync from WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
+          body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
         });
-        if (!res.ok) throw new Error('خطا در ذخیره سازی');
+        if (!res.ok) throw new Error('خطا در ذخیره');
         currentSha = (await res.json()).content.sha;
-        alert('✅ با موفقیت ذخیره شد!');
+        alert('✅ با موفقیت ثبت شد!');
       } catch (e) { alert('خطا: ' + e.message); }
     }
 
