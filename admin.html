@@ -16,7 +16,6 @@
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style>
     body { font-family: 'Vazirmatn', sans-serif; }
-    /* استایل اختصاصی تقویم دارک برای هماهنگی با تم پنل */
     .flatpickr-calendar {
       background: #0f172a !important;
       border: 1px solid #1e293b !important;
@@ -61,7 +60,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         <input type="text" id="usernameInput" placeholder="نام کاربری جدید" class="bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white">
         
-        <!-- فیلد تاریخ با قابلیت کلیک سراسری و باز شدن تقویم -->
+        <!-- فیلد تاریخ کاربر جدید -->
         <div class="relative">
           <input type="text" id="expiryInput" placeholder="انتخاب تاریخ انقضا..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm sm:text-base focus:border-blue-500 outline-none text-white cursor-pointer" readonly>
           <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3.5 text-slate-500 pointer-events-none"></i>
@@ -72,13 +71,13 @@
         </button>
       </div>
 
-      <!-- دکمه‌های سریع تاریخ برای راحتی کار -->
+      <!-- دکمه‌های سریع تاریخ برای کاربر جدید -->
       <div class="flex items-center gap-2 pt-1 text-xs text-slate-400 overflow-x-auto">
         <span class="shrink-0 font-bold text-slate-500">تاریخ سریع:</span>
-        <button onclick="setQuickExpiry(1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
-        <button onclick="setQuickExpiry(3)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
-        <button onclick="setQuickExpiry(12)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
-        <button onclick="setQuickExpiry('2030')" class="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/60 rounded-lg border border-indigo-800/60 text-indigo-300 transition shrink-0">۲۰۳۰ (طولانی)</button>
+        <button type="button" onclick="setQuickExpiry(1, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
+        <button type="button" onclick="setQuickExpiry(3, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
+        <button type="button" onclick="setQuickExpiry(12, 'add')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
+        <button type="button" onclick="setQuickExpiry('2030', 'add')" class="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/60 rounded-lg border border-indigo-800/60 text-indigo-300 transition shrink-0">۲۰۳۰ (طولانی)</button>
       </div>
     </div>
 
@@ -93,20 +92,29 @@
   <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl">
       <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
-        <i data-lucide="edit-3" class="text-blue-400"></i> ویرایش کاربر
+        <i data-lucide="edit-3" class="text-blue-400"></i> ویرایش / تمدید کاربر
       </h3>
       <label class="text-xs text-slate-400 mb-1 block">نام کاربری:</label>
       <input id="editUsername" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 mb-3 text-sm text-slate-400 cursor-not-allowed outline-none font-bold">
       
-      <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا جدید:</label>
-      <div class="relative mb-5">
+      <label class="text-xs text-slate-400 mb-1 block">تاریخ انقضا:</label>
+      <div class="relative mb-2.5">
         <input id="editExpiry" type="text" placeholder="انتخاب تاریخ جدید..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none cursor-pointer" readonly>
         <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-3 text-slate-500 pointer-events-none"></i>
       </div>
 
+      <!-- دکمه‌های تمدید سریع در مودال ادیت -->
+      <div class="flex items-center gap-1.5 mb-5 text-xs text-slate-400 overflow-x-auto pb-1">
+        <span class="shrink-0 font-bold text-slate-500">تمدید سریع:</span>
+        <button type="button" onclick="setQuickExpiry(1, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ ماه</button>
+        <button type="button" onclick="setQuickExpiry(3, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۳ ماه</button>
+        <button type="button" onclick="setQuickExpiry(12, 'edit')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700/60 text-slate-300 transition shrink-0">+۱ سال</button>
+        <button type="button" onclick="setQuickExpiry('2030', 'edit')" class="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/60 rounded-lg border border-indigo-800/60 text-indigo-300 transition shrink-0">۲۰۳۰</button>
+      </div>
+
       <div class="flex gap-2">
         <button onclick="toggleModal('editModal')" class="flex-1 bg-slate-800 py-2.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition">انصراف</button>
-        <button onclick="submitUpdate()" class="flex-1 bg-blue-600 py-2.5 rounded-xl font-bold text-xs text-white hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">به‌روزرسانی</button>
+        <button onclick="submitUpdate()" class="flex-1 bg-blue-600 py-2.5 rounded-xl font-bold text-xs text-white hover:bg-blue-500 transition shadow-lg shadow-blue-600/20">ذخیره تغییرات</button>
       </div>
     </div>
   </div>
@@ -159,12 +167,11 @@
       }
     });
 
-    // راه‌اندازی تقویم پاپ‌آپ
     function initDatePickers() {
       fpAdd = flatpickr("#expiryInput", {
         dateFormat: "Y-m-d",
         minDate: "today",
-        disableMobile: false // روی گوشی از دیالوگ محلی اندروید و روی کامپیوتر از پاپ‌آپ دارک استفاده می‌کنه
+        disableMobile: false
       });
 
       fpEdit = flatpickr("#editExpiry", {
@@ -173,18 +180,32 @@
       });
     }
 
-    // تابع انتخاب سریع تاریخ
-    function setQuickExpiry(val) {
+    function setQuickExpiry(val, target = 'add') {
+      const picker = (target === 'edit') ? fpEdit : fpAdd;
+      if (!picker) return;
+
       if (val === '2030') {
-        fpAdd.setDate('2030-01-01');
-      } else {
-        const d = new Date();
-        d.setMonth(d.getMonth() + val);
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        fpAdd.setDate(`${yyyy}-${mm}-${dd}`);
+        picker.setDate('2030-01-01');
+        return;
       }
+
+      let baseDate = new Date();
+
+      if (target === 'edit') {
+        const currentVal = document.getElementById('editExpiry').value;
+        if (currentVal) {
+          const parsed = new Date(currentVal);
+          if (!isNaN(parsed.getTime()) && parsed > baseDate) {
+            baseDate = parsed;
+          }
+        }
+      }
+
+      baseDate.setMonth(baseDate.getMonth() + val);
+      const yyyy = baseDate.getFullYear();
+      const mm = String(baseDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(baseDate.getDate()).padStart(2, '0');
+      picker.setDate(`${yyyy}-${mm}-${dd}`);
     }
 
     async function loadUsersFromGitHub(force = false) {
@@ -259,8 +280,28 @@
         return;
       }
 
+      // تاریخ امروز بدون احتساب ساعت (برای مقایسه دقیق روز)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       container.innerHTML = entries.map(([u, e], index) => {
-        const isExpired = new Date(e) < new Date();
+        const expDate = new Date(e);
+        expDate.setHours(0, 0, 0, 0);
+
+        const diffTime = expDate.getTime() - today.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        const isExpired = diffDays < 0;
+
+        // ساخت برچسب وضعیت با روزهای باقیمانده
+        let statusBadge = '';
+        if (isExpired) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] sm:text-xs font-bold shrink-0">منقضی</span>';
+        } else if (diffDays === 0) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (امروز)</span>';
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold shrink-0">فعال (${diffDays} روز)</span>`;
+        }
+
         return `
           <div class="user-card flex items-center justify-between bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2.5 sm:px-5 sm:py-3.5 hover:border-slate-700 transition shadow-sm gap-2">
             
@@ -273,9 +314,7 @@
             </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              ${isExpired 
-                ? '<span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] sm:text-xs font-bold">منقضی</span>' 
-                : '<span class="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] sm:text-xs font-bold">فعال</span>'}
+              ${statusBadge}
               
               <button onclick="copySubLink('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition" title="کپی لینک ساب">
                 <i data-lucide="link" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
