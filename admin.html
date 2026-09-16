@@ -90,7 +90,44 @@
       else toggleModal('configModal');
     });
 
-    // EDIT FLOW
+    async function loadUsersFromGitHub() {
+      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
+      const tbody = document.getElementById('userTableBody');
+      if (!o || !r || !t) return;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, { headers: { Authorization: `Bearer ${t}` }});
+        if (!res.ok) throw new Error('فایل یافت نشد یا توکن اشتباه است');
+        const data = await res.json();
+        currentSha = data.sha;
+        usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+        renderTable();
+      } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">${err.message}</td></tr>`; }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = Object.entries(usersData).map(([u, e]) => `
+        <tr class="border-b border-slate-800/50 user-row">
+          <td class="py-3 px-5 font-bold name-cell">${u}</td>
+          <td class="py-3 px-5 font-mono text-xs text-slate-400">${e}</td>
+          <td class="py-3 px-5 text-xs">${new Date(e) < new Date() ? '<span class="text-rose-400">منقضی</span>' : '<span class="text-emerald-400">فعال</span>'}</td>
+          <td class="py-3 px-5 flex gap-2">
+            <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function filterTable() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.user-row').forEach(row => {
+        const name = row.querySelector('.name-cell').innerText.toLowerCase();
+        row.style.display = name.includes(q) ? '' : 'none';
+      });
+    }
+
     function openEditModal(u) {
       document.getElementById('editUsername').value = u;
       document.getElementById('editExpiry').value = usersData[u];
@@ -100,14 +137,13 @@
     async function submitUpdate() {
       const u = document.getElementById('editUsername').value;
       const e = document.getElementById('editExpiry').value;
-      if (!confirm(`آیا مطمئنی؟ تغییر تاریخ برای ${u}`)) return;
+      if (!confirm(`آیا از ویرایش ${u} مطمئنی؟`)) return;
       usersData[u] = e;
       await syncWithGitHub();
       toggleModal('editModal');
       renderTable();
     }
 
-    // ADD FLOW
     async function addUserAction() {
       const u = document.getElementById('usernameInput').value.trim();
       const e = document.getElementById('expiryInput').value;
@@ -117,7 +153,13 @@
       renderTable();
     }
 
-    // SHARED
+    async function deleteUser(u) {
+      if (!confirm(`آیا از حذف ${u} مطمئنی؟`)) return;
+      delete usersData[u];
+      await syncWithGitHub();
+      renderTable();
+    }
+
     async function syncWithGitHub() {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
       try {
@@ -126,14 +168,19 @@
           headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
         });
-        if (!res.ok) throw new Error('خطا در ذخیره');
+        if (!res.ok) throw new Error('خطا در ذخیره سازی');
         currentSha = (await res.json()).content.sha;
-        alert('✅ با موفقیت ثبت شد!');
+        alert('✅ با موفقیت ذخیره شد!');
       } catch (e) { alert('خطا: ' + e.message); }
     }
 
-    // ... (rest of helper functions like loadUsersFromGitHub, deleteUser, filterTable)
-    // (Ensure you copy the rest of helper functions from previous version if missing)
+    function saveConfig() {
+      localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
+      localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
+      localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
+      toggleModal('configModal');
+      loadUsersFromGitHub();
+    }
   </script>
 </body>
 </html>
