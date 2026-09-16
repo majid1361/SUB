@@ -6,6 +6,7 @@
   <title>SUB Users | پنل مدیریت</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style> body { font-family: 'Vazirmatn', sans-serif; } </style>
 </head>
@@ -23,9 +24,14 @@
           <p class="text-xs text-slate-400">پنل مدیریت هوشمند</p>
         </div>
       </div>
-      <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
-        <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
-      </button>
+      <div class="flex gap-2">
+        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 hover:bg-slate-700" title="رفرش دیتا">
+            <i data-lucide="refresh-cw" class="w-4 h-4 text-emerald-400"></i>
+        </button>
+        <button onclick="toggleModal('configModal')" class="flex items-center gap-2 bg-slate-800/80 px-4 py-2.5 rounded-xl border border-slate-700 text-xs hover:bg-slate-700">
+          <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
+        </button>
+      </div>
     </div>
 
     <!-- Add User Area -->
@@ -65,6 +71,15 @@
     </div>
   </div>
 
+  <!-- QR Modal -->
+  <div id="qrModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 flex flex-col items-center">
+      <h3 class="text-lg font-bold mb-4 text-white">QR Code اختصاصی</h3>
+      <div id="qrcode" class="bg-white p-2 rounded-xl mb-4"></div>
+      <button onclick="toggleModal('qrModal')" class="w-full bg-slate-800 py-2 rounded-xl text-sm hover:bg-slate-700">بستن</button>
+    </div>
+  </div>
+
   <!-- Config Modal -->
   <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6">
@@ -86,13 +101,22 @@
       document.getElementById('ghOwner').value = localStorage.getItem('gh_owner') || '';
       document.getElementById('ghRepo').value = localStorage.getItem('gh_repo') || '';
       document.getElementById('ghToken').value = localStorage.getItem('gh_token') || '';
+      
       if (localStorage.getItem('gh_token')) loadUsersFromGitHub();
       else toggleModal('configModal');
     });
 
-    async function loadUsersFromGitHub() {
+    async function loadUsersFromGitHub(force = false) {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
       const tbody = document.getElementById('userTableBody');
+      
+      const cached = localStorage.getItem('users_cache');
+      if (cached && !force) {
+        usersData = JSON.parse(cached);
+        renderTable();
+        return;
+      }
+
       if (!o || !r || !t) return;
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, { headers: { Authorization: `Bearer ${t}` }});
@@ -100,6 +124,7 @@
         const data = await res.json();
         currentSha = data.sha;
         usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+        localStorage.setItem('users_cache', JSON.stringify(usersData));
         renderTable();
       } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">${err.message}</td></tr>`; }
     }
@@ -111,76 +136,60 @@
           <td class="py-3 px-5 font-bold name-cell">${u}</td>
           <td class="py-3 px-5 font-mono text-xs text-slate-400">${e}</td>
           <td class="py-3 px-5 text-xs">${new Date(e) < new Date() ? '<span class="text-rose-400">منقضی</span>' : '<span class="text-emerald-400">فعال</span>'}</td>
-          <td class="py-3 px-5 flex gap-2">
-            <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          <td class="py-3 px-5 flex gap-3">
+            <button onclick="copySubLink('${u}')" class="text-emerald-400 hover:text-emerald-300" title="کپی لینک"><i data-lucide="link" class="w-4 h-4"></i></button>
+            <button onclick="generateQR('${u}')" class="text-indigo-400 hover:text-indigo-300" title="نمایش QR"><i data-lucide="qr-code" class="w-4 h-4"></i></button>
+            <button onclick="openEditModal('${u}')" class="text-blue-400 hover:text-blue-300" title="ویرایش"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+            <button onclick="deleteUser('${u}')" class="text-slate-500 hover:text-rose-400" title="حذف"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `).join('');
       lucide.createIcons();
     }
 
-    function filterTable() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      document.querySelectorAll('.user-row').forEach(row => {
-        const name = row.querySelector('.name-cell').innerText.toLowerCase();
-        row.style.display = name.includes(q) ? '' : 'none';
-      });
+    async function copySubLink(u) {
+      const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
+      try { await navigator.clipboard.writeText(subLink); alert(`✅ لینک ${u} کپی شد!`); } 
+      catch (err) { alert('خطا در کپی'); }
     }
 
-    function openEditModal(u) {
-      document.getElementById('editUsername').value = u;
-      document.getElementById('editExpiry').value = usersData[u];
-      toggleModal('editModal');
+    function generateQR(u) {
+      const subLink = `https://sub-seven-psi.vercel.app/api?user=${encodeURIComponent(u)}#Sub:%20${encodeURIComponent(u)}`;
+      const container = document.getElementById("qrcode");
+      container.innerHTML = "";
+      new QRCode(container, { text: subLink, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.H });
+      toggleModal('qrModal');
     }
 
-    async function submitUpdate() {
-      const u = document.getElementById('editUsername').value;
-      const e = document.getElementById('editExpiry').value;
-      if (!confirm(`آیا از ویرایش ${u} مطمئنی؟`)) return;
-      usersData[u] = e;
-      await syncWithGitHub();
-      toggleModal('editModal');
-      renderTable();
-    }
-
-    async function addUserAction() {
-      const u = document.getElementById('usernameInput').value.trim();
-      const e = document.getElementById('expiryInput').value;
-      if (!u || !e) return alert('نام و تاریخ رو پر کن!');
-      usersData[u] = e;
-      await syncWithGitHub();
-      renderTable();
-    }
-
-    async function deleteUser(u) {
-      if (!confirm(`آیا از حذف ${u} مطمئنی؟`)) return;
-      delete usersData[u];
-      await syncWithGitHub();
-      renderTable();
-    }
-
+    // ... (سایر توابع)
+    function filterTable() { const q = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.user-row').forEach(r => r.style.display = r.querySelector('.name-cell').innerText.toLowerCase().includes(q) ? '' : 'none'); }
+    function openEditModal(u) { document.getElementById('editUsername').value = u; document.getElementById('editExpiry').value = usersData[u]; toggleModal('editModal'); }
+    async function submitUpdate() { const u = document.getElementById('editUsername').value; const e = document.getElementById('editExpiry').value; if (!confirm(`ویرایش ${u}؟`)) return; usersData[u] = e; await syncWithGitHub(); toggleModal('editModal'); renderTable(); }
+    async function addUserAction() { const u = document.getElementById('usernameInput').value.trim(); const e = document.getElementById('expiryInput').value; if (!u || !e) return alert('پر کن!'); usersData[u] = e; await syncWithGitHub(); renderTable(); }
+    async function deleteUser(u) { if (!confirm(`حذف ${u}؟`)) return; delete usersData[u]; await syncWithGitHub(); renderTable(); }
     async function syncWithGitHub() {
       const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
       try {
-        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
-          method: 'PUT',
-          headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha })
-        });
-        if (!res.ok) throw new Error('خطا در ذخیره سازی');
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, { method: 'PUT', headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha }) });
+        if (!res.ok) throw new Error('خطا');
         currentSha = (await res.json()).content.sha;
+        localStorage.setItem('users_cache', JSON.stringify(usersData));
         alert('✅ با موفقیت ذخیره شد!');
       } catch (e) { alert('خطا: ' + e.message); }
     }
-
-    function saveConfig() {
-      localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim());
-      localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
-      localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
-      toggleModal('configModal');
-      loadUsersFromGitHub();
+    function saveConfig() { localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim()); toggleModal('('usernameInput').value.trim(); const e = document.getElementById('expiryInput').value; if (!u || !e) return alert('پر کن!'); usersData[u] = e; await syncWithGitHub(); renderTable(); }
+    async function deleteUser(u) { if (!confirm(`حذف ${u}؟`)) return; delete usersData[u]; await syncWithGitHub(); renderTable(); }
+    async function syncWithGitHub() {
+      const o = localStorage.getItem('gh_owner'), r = localStorage.getItem('gh_repo'), t = localStorage.getItem('gh_token');
+      try {
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, { method: 'PUT', headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Update via WebPanel', content: btoa(unescape(encodeURIComponent(JSON.stringify(usersData, null, 2)))), sha: currentSha }) });
+        if (!res.ok) throw new Error('خطا');
+        currentSha = (await res.json()).content.sha;
+        localStorage.setItem('users_cache', JSON.stringify(usersData));
+        alert('✅ با موفقیت ذخیره شد!');
+      } catch (e) { alert('خطا: ' + e.message); }
     }
+    function saveConfig() { localStorage.setItem('gh_owner', document.getElementById('ghOwner').value.trim()); localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim()); localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim()); toggleModal('configModal'); loadUsersFromGitHub(true); }
   </script>
 </body>
 </html>
