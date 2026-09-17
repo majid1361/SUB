@@ -1,22 +1,34 @@
 {
-  "name": "SUB-Users",
+  "id": "/SUB-Users/",
+  "name": "SUB Users Management",
   "short_name": "SUB-Users",
+  "description": "پنل مدیریت کاربران و سابسکریپشن گیت‌هاب",
   "start_url": "./admin.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "background_color": "#050811",
+  "theme_color": "#050811",
+  "lang": "fa",
+  "dir": "rtl",
   "icons": [
     {
-      "src": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+      "src": "https://github.githubassets.com/favicons/favicon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
