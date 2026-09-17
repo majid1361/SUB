@@ -94,7 +94,7 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons (هم‌اندازه و کامپکت) -->
+      <!-- Header Action Buttons -->
       <div class="flex items-center gap-2">
         <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ دیتابیس (JSON)">
           <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -107,7 +107,7 @@
           <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
           <span id="subBadge" class="absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow">0</span>
         </button>
-        <!-- دکمه تنظیمات فقط با آیکون هم‌اندازه بقیه -->
+        <!-- دکمه تنظیمات -->
         <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition shadow" title="تنظیمات اتصال گیت‌هاب">
           <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
@@ -250,7 +250,7 @@
     </div>
   </div>
 
-  <!-- Config Modal (تنظیمات اتصال) -->
+  <!-- Config Modal -->
   <div id="configModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl">
       <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
@@ -263,7 +263,7 @@
     </div>
   </div>
 
-  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) - نسخه ارتقایافته تب‌بندی و سلکت -->
+  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) -->
   <div id="subModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-3 sm:p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl flex flex-col gap-3 max-h-[90vh]">
       
@@ -281,9 +281,7 @@
       </div>
 
       <!-- پنل لیست کانفیگ‌ها -->
-      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1">
-        <!-- توسط جاوااسکریپت پر می‌شود -->
-      </div>
+      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1"></div>
 
       <!-- پنل ویرایش متن -->
       <textarea id="subContentArea" dir="ltr" rows="13" spellcheck="false"
@@ -319,7 +317,7 @@
     let selectedSubIndexes = new Set();
     let fpAdd, fpEdit;
 
-    // Fast Toast Notification System
+    // Toast Notification System
     function showToast(message, type = 'success') {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
@@ -415,6 +413,25 @@
       picker.setDate(`${yyyy}-${mm}-${dd}`);
     }
 
+    // استانداردسازی انکود و دیکود UTF-8
+    function decodeBase64Utf8(b64) {
+      try {
+        const cleanB64 = b64.replace(/\s/g, '');
+        const binStr = atob(cleanB64);
+        const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
+        return new TextDecoder().decode(bytes);
+      } catch (e) {
+        return decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
+      }
+    }
+
+    function encodeBase64Utf8(str) {
+      const utf8Bytes = new TextEncoder().encode(str);
+      let binaryStr = "";
+      utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+      return btoa(binaryStr);
+    }
+
     async function loadUsersFromGitHub(force = false) {
       const o = localStorage.getItem('gh_owner');
       const r = localStorage.getItem('gh_repo');
@@ -457,7 +474,7 @@
 
         const data = await res.json();
         currentSha = data.sha;
-        usersData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+        usersData = JSON.parse(decodeBase64Utf8(data.content));
         localStorage.setItem('users_cache', JSON.stringify(usersData));
         renderUsers();
         if (force) showToast('همگام‌سازی انجام شد');
@@ -481,7 +498,7 @@
       }
     }
 
-    // ===== بخش مدیریت sub.txt =====
+    // ===== مدیریت sub.txt =====
     async function fetchSubConfigCountSilently() {
       const o = localStorage.getItem('gh_owner');
       const r = localStorage.getItem('gh_repo');
@@ -502,24 +519,6 @@
       } catch (e) {
         console.warn("Silent sub.txt fetch error:", e);
       }
-    }
-
-    function decodeBase64Utf8(b64) {
-      try {
-        const cleanB64 = b64.replace(/\s/g, '');
-        const binStr = atob(cleanB64);
-        const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      } catch (e) {
-        return decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
-      }
-    }
-
-    function encodeBase64Utf8(str) {
-      const utf8Bytes = new TextEncoder().encode(str);
-      let binaryStr = "";
-      utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
-      return btoa(binaryStr);
     }
 
     function countValidConfigs(text) {
@@ -546,6 +545,7 @@
       const editPanel = document.getElementById('subContentArea');
       const tabList = document.getElementById('tabListBtn');
       const tabEdit = document.getElementById('tabEditBtn');
+      const selBar = document.getElementById('subSelectionBar');
 
       if (tab === 'list') {
         renderSubList();
@@ -553,11 +553,14 @@
         editPanel.classList.add('hidden');
         tabList.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
         tabEdit.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+        updateSelBar();
       } else {
         listPanel.classList.add('hidden');
         editPanel.classList.remove('hidden');
         tabEdit.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
         tabList.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+        selBar.classList.add('hidden');
+        selBar.classList.remove('flex');
       }
     }
 
@@ -662,19 +665,16 @@
       }
     }
 
+    // حذف دقیق و ضد باگ کانفیگ‌ها
     function deleteSelectedConfigs() {
+      if (selectedSubIndexes.size === 0) return;
       if (!confirm(`حذف ${selectedSubIndexes.size} کانفیگ انتخاب‌شده؟`)) return;
-      const allLines = document.getElementById('subContentArea').value.split('\n');
 
-      let cfgIdx = -1;
-      const keep = allLines.filter(line => {
-        const t = line.trim();
-        if (t.length > 0 && !t.startsWith('#')) {
-          cfgIdx++;
-          return !selectedSubIndexes.has(cfgIdx);
-        }
-        return true;
-      });
+      const configs = getSubConfigs();
+      const configsToDelete = new Set([...selectedSubIndexes].map(i => configs[i]));
+
+      const allLines = document.getElementById('subContentArea').value.split('\n');
+      const keep = allLines.filter(line => !configsToDelete.has(line.trim()));
 
       document.getElementById('subContentArea').value = keep.join('\n');
       selectedSubIndexes.clear();
@@ -821,6 +821,8 @@
           }
         }
 
+        const safeUser = u.replace(/'/g, "\\'");
+
         return `
           <div class="user-card user-row flex items-center justify-between rounded-xl px-3 py-2.5 sm:px-5 sm:py-3.5 shadow-sm gap-2" data-status="${statusType}">
             
@@ -835,16 +837,16 @@
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
               ${statusBadge}
               
-              <button onclick="copySubLink('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition active:scale-95" title="کپی لینک ساب">
+              <button onclick="copySubLink('${safeUser}')" class="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition active:scale-95" title="کپی لینک ساب">
                 <i data-lucide="link" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="generateQR('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition active:scale-95" title="نمایش QR">
+              <button onclick="generateQR('${safeUser}')" class="p-1.5 sm:p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition active:scale-95" title="نمایش QR">
                 <i data-lucide="qr-code" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="openEditModal('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition active:scale-95" title="ویرایش">
+              <button onclick="openEditModal('${safeUser}')" class="p-1.5 sm:p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition active:scale-95" title="ویرایش">
                 <i data-lucide="edit-3" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
-              <button onclick="deleteUser('${u}')" class="p-1.5 sm:p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 transition active:scale-95" title="حذف">
+              <button onclick="deleteUser('${safeUser}')" class="p-1.5 sm:p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 transition active:scale-95" title="حذف">
                 <i data-lucide="trash-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               </button>
             </div>
@@ -910,11 +912,14 @@
       const e = document.getElementById('editExpiry').value;
       if (!e) return showToast('تاریخ انقضا الزامی است!', 'warn');
       
+      const previousExpiry = usersData[u];
       usersData[u] = e;
       const ok = await syncWithGitHub();
       if (ok) {
         toggleModal('editModal');
         renderUsers();
+      } else {
+        usersData[u] = previousExpiry; // بازگردانی در صورت خطا
       }
     }
 
@@ -926,20 +931,31 @@
         return showToast('نام کاربری و تاریخ انقضا را مشخص کنید!', 'warn');
       }
 
+      if (usersData[u]) {
+        return showToast('این نام کاربری از قبل وجود دارد!', 'warn');
+      }
+
       usersData[u] = e;
       const ok = await syncWithGitHub();
       if (ok) {
         document.getElementById('usernameInput').value = '';
         if (fpAdd) fpAdd.clear();
         renderUsers();
+      } else {
+        delete usersData[u]; // بازگردانی در صورت خطا
       }
     }
 
     async function deleteUser(u) {
       if (!confirm(`آیا از حذف کاربر «${u}» مطمئن هستید؟`)) return;
+      const backupDate = usersData[u];
       delete usersData[u];
       const ok = await syncWithGitHub();
-      if (ok) renderUsers();
+      if (ok) {
+        renderUsers();
+      } else {
+        usersData[u] = backupDate; // بازگردانی در صورت خطا
+      }
     }
 
     async function syncWithGitHub() {
@@ -948,10 +964,7 @@
       const t = localStorage.getItem('gh_token');
 
       try {
-        const utf8Bytes = new TextEncoder().encode(JSON.stringify(usersData, null, 2));
-        let binaryStr = "";
-        utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
-        const base64Content = btoa(binaryStr);
+        const base64Content = encodeBase64Utf8(JSON.stringify(usersData, null, 2));
 
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
