@@ -280,6 +280,19 @@
         <button id="tabEditBtn" onclick="switchSubTab('edit')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">ویرایش متن</button>
       </div>
 
+            <!-- تب‌ها -->
+      <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <button id="tabListBtn" onclick="switchSubTab('list')" class="flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition">لیست و انتخاب</button>
+        <button id="tabEditBtn" onclick="switchSubTab('edit')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">ویرایش متن</button>
+      </div>
+
+      <!-- باکس جستجو کانفیگ‌ها -->
+      <div id="subSearchContainer" class="relative">
+        <input type="text" id="subSearchInput" oninput="renderSubList()" placeholder="جستجو در نام، پروتکل یا لینک کانفیگ..."
+          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 pl-9 text-xs text-slate-200 placeholder-slate-500 focus:border-amber-500 outline-none transition" />
+        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+      </div>
+
       <!-- پنل لیست کانفیگ‌ها -->
       <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1"></div>
 
@@ -540,22 +553,25 @@
       document.getElementById('subLineCount').innerText = `${count} کانفیگ`;
     }
 
-    function switchSubTab(tab) {
+        function switchSubTab(tab) {
       const listPanel = document.getElementById('subListPanel');
       const editPanel = document.getElementById('subContentArea');
       const tabList = document.getElementById('tabListBtn');
       const tabEdit = document.getElementById('tabEditBtn');
       const selBar = document.getElementById('subSelectionBar');
+      const searchBox = document.getElementById('subSearchContainer');
 
       if (tab === 'list') {
         renderSubList();
         listPanel.classList.remove('hidden');
+        if (searchBox) searchBox.classList.remove('hidden');
         editPanel.classList.add('hidden');
         tabList.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
         tabEdit.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
         updateSelBar();
       } else {
         listPanel.classList.add('hidden');
+        if (searchBox) searchBox.classList.add('hidden');
         editPanel.classList.remove('hidden');
         tabEdit.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
         tabList.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
@@ -564,9 +580,12 @@
       }
     }
 
-    function renderSubList() {
+
+        function renderSubList() {
       const configs = getSubConfigs();
       const panel = document.getElementById('subListPanel');
+      const searchInput = document.getElementById('subSearchInput');
+      const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
       if (configs.length === 0) {
         panel.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">کانفیگی ثبت نشده است.</div>';
@@ -574,50 +593,71 @@
         return;
       }
 
-      panel.innerHTML = configs.map((c, i) => {
+      // مپ کردن برای حفظ ایندکس اصلی در زمان جستجو
+      const mapped = configs.map((c, originalIndex) => {
         const proto = c.split('://')[0] || 'unknown';
         let configName = proto;
         const hashIdx = c.indexOf('#');
         if (hashIdx !== -1) {
           const rawName = c.slice(hashIdx + 1).trim();
           if (rawName) {
-            try {
-              configName = decodeURIComponent(rawName);
-            } catch (e) {
-              configName = rawName;
-            }
+            try { configName = decodeURIComponent(rawName); }
+            catch (e) { configName = rawName; }
           }
         }
-        const safeConfigName = configName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return { c, originalIndex, proto, configName };
+      });
+
+      // فیلتر کردن براساس کلمه جستجو
+      const filtered = query ? mapped.filter(item => {
+        return item.configName.toLowerCase().includes(query) ||
+               item.proto.toLowerCase().includes(query) ||
+               item.c.toLowerCase().includes(query);
+      }) : mapped;
+
+      if (filtered.length === 0) {
+        panel.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">کانفیگی مطابق با جستجوی شما یافت نشد.</div>';
+        updateSelBar();
+        return;
+      }
+
+      panel.innerHTML = filtered.map(item => {
+        const { c, originalIndex: i, proto, configName } = item;
+
+        const escapeHtml = (str) => str.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+        const safeConfigName = escapeHtml(configName);
 
         const protoColors = {
-          vless: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-          vmess: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
-          trojan: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
-          hysteria2: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-          hysteria: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-          ss: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+          'vless':     'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+          'vmess':     'text-sky-400 bg-sky-500/10 border-sky-500/20',
+          'trojan':    'text-rose-400 bg-rose-500/10 border-rose-500/20',
+          'hysteria2': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          'hysteria':  'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          'ss':        'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
         };
         const pClass = protoColors[proto] || 'text-slate-400 bg-slate-800 border-slate-700';
         const checked = selectedSubIndexes.has(i);
 
         return `
-          <div class="flex items-center gap-2 bg-slate-950 border ${checked ? 'border-amber-500/50' : 'border-slate-800'} rounded-xl px-2.5 py-2 transition">
-            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)"
-              class="w-4 h-4 accent-amber-500 shrink-0 cursor-pointer">
-            <span class="font-mono text-[10px] font-black text-slate-500 w-6 text-center shrink-0">#${i + 1}</span>
-            <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 max-w-[120px] sm:max-w-[160px] truncate ${pClass}" title="${safeConfigName}">${safeConfigName}</span>
-            <span dir="ltr" class="flex-1 font-mono text-[10px] text-slate-300 truncate">${c.length > 60 ? c.slice(0, 60) + '...' : c}</span>
-            <button onclick="copySingleConfig(${i})" class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition shrink-0" title="کپی این کانفیگ">
+          <div class="flex items-center gap-2 p-2 rounded-lg border border-slate-800 bg-slate-950 hover:border-slate-600 transition group ${checked ? 'border-amber-500/50 bg-amber-500/5' : ''}">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)" class="checkbox checkbox-sm text-amber-500">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] px-1.5 py-0.5 rounded border ${pClass} font-bold" title="${safeConfigName}">#${i + 1} ${safeConfigName}</span>
+                <div class="text-[10px] text-slate-500 truncate flex-1" dir="ltr">${c.slice(0, 60)}</div>
+              </div>
+            </div>
+            <button onclick="copySingleConfig(${i})" class="p-1.5 text-slate-500 hover:text-emerald-400 transition" title="کپی این کانفیگ">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
             </button>
-          </div>
-        `;
+          </div>`;
       }).join('');
 
       updateSelBar();
       lucide.createIcons({ root: panel });
     }
+
 
     function toggleSubSelect(i, checked) {
       if (checked) selectedSubIndexes.add(i);
