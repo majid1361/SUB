@@ -84,8 +84,8 @@
     <div class="glass-header rounded-2xl p-4 sm:p-5 shadow-xl flex justify-between items-center relative overflow-hidden">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
-    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="w-full h-full object-contain invert" alt="GitHub Logo" />
-</div>
+          <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="w-full h-full object-contain invert" alt="GitHub Logo" />
+        </div>
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-base sm:text-xl font-black text-white tracking-wide">SUB Users</h1>
@@ -94,6 +94,7 @@
         </div>
       </div>
 
+      <!-- Header Action Buttons (هم‌اندازه و کامپکت) -->
       <div class="flex items-center gap-2">
         <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ دیتابیس (JSON)">
           <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -101,8 +102,14 @@
         <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="رفرش و همگام‌سازی">
           <i data-lucide="refresh-cw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
-        <button onclick="toggleModal('configModal')" class="flex items-center gap-1.5 bg-slate-800 px-3 py-2.5 rounded-xl border border-slate-700 text-xs sm:text-sm font-bold hover:bg-slate-700 transition shadow">
-          <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> تنظیمات
+        <!-- دکمه مدیریت کانفیگ‌ها همراه با عدد تعداد کانفیگ -->
+        <button onclick="openSubModal()" class="relative bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-amber-400 hover:text-amber-300 transition shadow" title="مدیریت کانفیگ‌های ساب (sub.txt)">
+          <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          <span id="subBadge" class="absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow">0</span>
+        </button>
+        <!-- دکمه تنظیمات فقط با آیکون هم‌اندازه بقیه -->
+        <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition shadow" title="تنظیمات اتصال گیت‌هاب">
+          <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
       </div>
     </div>
@@ -243,7 +250,7 @@
     </div>
   </div>
 
-  <!-- Config Modal -->
+  <!-- Config Modal (تنظیمات اتصال) -->
   <div id="configModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl">
       <h3 class="text-lg font-bold mb-4 text-white flex items-center gap-2">
@@ -256,10 +263,59 @@
     </div>
   </div>
 
+  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) - نسخه ارتقایافته تب‌بندی و سلکت -->
+  <div id="subModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-3 sm:p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl flex flex-col gap-3 max-h-[90vh]">
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i> مدیریت کانفیگ‌های ساب
+        </h3>
+        <span id="subLineCount" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1">۰ کانفیگ</span>
+      </div>
+
+      <!-- تب‌ها -->
+      <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <button id="tabListBtn" onclick="switchSubTab('list')" class="flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition">لیست و انتخاب</button>
+        <button id="tabEditBtn" onclick="switchSubTab('edit')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">ویرایش متن</button>
+      </div>
+
+      <!-- پنل لیست کانفیگ‌ها -->
+      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1">
+        <!-- توسط جاوااسکریپت پر می‌شود -->
+      </div>
+
+      <!-- پنل ویرایش متن -->
+      <textarea id="subContentArea" dir="ltr" rows="13" spellcheck="false"
+        oninput="updateSubLineCount()"
+        placeholder="vless://...&#10;vmess://...&#10;ss://..."
+        class="hidden w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-emerald-400 font-mono text-xs leading-5 resize-none focus:border-amber-500 outline-none shadow-inner"></textarea>
+
+      <!-- نوار عملیات سلکت -->
+      <div id="subSelectionBar" class="hidden flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+        <span class="text-slate-300 font-bold"><span id="selCount">۰</span> کانفیگ انتخاب شده</span>
+        <div class="flex gap-1.5">
+          <button onclick="copySelectedConfigs()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold hover:bg-emerald-500/20 transition">کپی</button>
+          <button onclick="deleteSelectedConfigs()" class="px-2.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold hover:bg-rose-500/20 transition">حذف</button>
+          <button onclick="clearSubSelection()" class="px-2.5 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-bold hover:bg-slate-700 transition">لغو</button>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="toggleModal('subModal')" class="bg-slate-800 py-2.5 px-4 rounded-xl text-xs font-bold hover:bg-slate-700 transition text-slate-300">بستن</button>
+        <button id="saveSubBtn" onclick="saveSubFileAction()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 active:scale-98">
+          <i data-lucide="save" class="w-4 h-4"></i> ذخیره و انتشار کانفیگ‌ها
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let usersData = {};
     let currentSha = "";
+    let currentSubSha = "";
     let currentFilter = 'all';
+    let selectedSubIndexes = new Set();
     let fpAdd, fpEdit;
 
     // Fast Toast Notification System
@@ -298,6 +354,7 @@
       const modal = document.getElementById(id);
       modal.classList.toggle('hidden');
       modal.classList.toggle('flex');
+      lucide.createIcons({ root: modal });
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -310,6 +367,7 @@
       
       if (localStorage.getItem('gh_token')) {
         loadUsersFromGitHub();
+        fetchSubConfigCountSilently();
       } else {
         toggleModal('configModal');
       }
@@ -419,6 +477,282 @@
         }
       } catch (e) {
         console.warn("Silent SHA error:", e);
+      }
+    }
+
+    // ===== بخش مدیریت sub.txt =====
+    async function fetchSubConfigCountSilently() {
+      const o = localStorage.getItem('gh_owner');
+      const r = localStorage.getItem('gh_repo');
+      const t = localStorage.getItem('gh_token');
+      if (!o || !r || !t) return;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
+          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          currentSubSha = data.sha;
+          const content = decodeBase64Utf8(data.content);
+          const count = countValidConfigs(content);
+          document.getElementById('subBadge').innerText = count;
+        }
+      } catch (e) {
+        console.warn("Silent sub.txt fetch error:", e);
+      }
+    }
+
+    function decodeBase64Utf8(b64) {
+      try {
+        const cleanB64 = b64.replace(/\s/g, '');
+        const binStr = atob(cleanB64);
+        const bytes = Uint8Array.from(binStr, c => c.charCodeAt(0));
+        return new TextDecoder().decode(bytes);
+      } catch (e) {
+        return decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
+      }
+    }
+
+    function encodeBase64Utf8(str) {
+      const utf8Bytes = new TextEncoder().encode(str);
+      let binaryStr = "";
+      utf8Bytes.forEach(b => binaryStr += String.fromCharCode(b));
+      return btoa(binaryStr);
+    }
+
+    function countValidConfigs(text) {
+      if (!text) return 0;
+      return text.split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0 && !l.startsWith('#')).length;
+    }
+
+    function getSubConfigs() {
+      return document.getElementById('subContentArea').value
+        .split('\n').map(l => l.trim())
+        .filter(l => l.length > 0 && !l.startsWith('#'));
+    }
+
+    function updateSubLineCount() {
+      const content = document.getElementById('subContentArea').value;
+      const count = countValidConfigs(content);
+      document.getElementById('subLineCount').innerText = `${count} کانفیگ`;
+    }
+
+    function switchSubTab(tab) {
+      const listPanel = document.getElementById('subListPanel');
+      const editPanel = document.getElementById('subContentArea');
+      const tabList = document.getElementById('tabListBtn');
+      const tabEdit = document.getElementById('tabEditBtn');
+
+      if (tab === 'list') {
+        renderSubList();
+        listPanel.classList.remove('hidden');
+        editPanel.classList.add('hidden');
+        tabList.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
+        tabEdit.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+      } else {
+        listPanel.classList.add('hidden');
+        editPanel.classList.remove('hidden');
+        tabEdit.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
+        tabList.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+      }
+    }
+
+    function renderSubList() {
+      const configs = getSubConfigs();
+      const panel = document.getElementById('subListPanel');
+
+      if (configs.length === 0) {
+        panel.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">کانفیگی ثبت نشده است.</div>';
+        updateSelBar();
+        return;
+      }
+
+      panel.innerHTML = configs.map((c, i) => {
+        const proto = c.split('://')[0] || 'unknown';
+        const protoColors = {
+          vless: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+          vmess: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+          trojan: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+          hysteria2: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          hysteria: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          ss: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+        };
+        const pClass = protoColors[proto] || 'text-slate-400 bg-slate-800 border-slate-700';
+        const checked = selectedSubIndexes.has(i);
+
+        return `
+          <div class="flex items-center gap-2 bg-slate-950 border ${checked ? 'border-amber-500/50' : 'border-slate-800'} rounded-xl px-2.5 py-2 transition">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)"
+              class="w-4 h-4 accent-amber-500 shrink-0 cursor-pointer">
+            <span class="font-mono text-[10px] font-black text-slate-500 w-6 text-center shrink-0">#${i + 1}</span>
+            <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 ${pClass}">${proto}</span>
+            <span dir="ltr" class="flex-1 font-mono text-[10px] text-slate-300 truncate">${c.length > 60 ? c.slice(0, 60) + '...' : c}</span>
+            <button onclick="copySingleConfig(${i})" class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition shrink-0" title="کپی این کانفیگ">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      updateSelBar();
+      lucide.createIcons({ root: panel });
+    }
+
+    function toggleSubSelect(i, checked) {
+      if (checked) selectedSubIndexes.add(i);
+      else selectedSubIndexes.delete(i);
+      renderSubList();
+    }
+
+    function updateSelBar() {
+      const bar = document.getElementById('subSelectionBar');
+      document.getElementById('selCount').innerText = selectedSubIndexes.size;
+      bar.classList.toggle('hidden', selectedSubIndexes.size === 0);
+      bar.classList.toggle('flex', selectedSubIndexes.size > 0);
+    }
+
+    function clearSubSelection() {
+      selectedSubIndexes.clear();
+      renderSubList();
+    }
+
+    async function copySingleConfig(i) {
+      const c = getSubConfigs()[i];
+      try {
+        await navigator.clipboard.writeText(c);
+        showToast(`کانفیگ #${i + 1} کپی شد`);
+      } catch (e) {
+        prompt('کانفیگ:', c);
+      }
+    }
+
+    async function copySelectedConfigs() {
+      const configs = getSubConfigs();
+      const sel = [...selectedSubIndexes].sort((a, b) => a - b).map(i => configs[i]).join('\n');
+      if (!sel) return;
+      try {
+        await navigator.clipboard.writeText(sel);
+        showToast(`${selectedSubIndexes.size} کانفیگ کپی شد`);
+      } catch (e) {
+        prompt('کانفیگ‌ها:', sel);
+      }
+    }
+
+    function deleteSelectedConfigs() {
+      if (!confirm(`حذف ${selectedSubIndexes.size} کانفیگ انتخاب‌شده؟`)) return;
+      const allLines = document.getElementById('subContentArea').value.split('\n');
+
+      let cfgIdx = -1;
+      const keep = allLines.filter(line => {
+        const t = line.trim();
+        if (t.length > 0 && !t.startsWith('#')) {
+          cfgIdx++;
+          return !selectedSubIndexes.has(cfgIdx);
+        }
+        return true;
+      });
+
+      document.getElementById('subContentArea').value = keep.join('\n');
+      selectedSubIndexes.clear();
+      updateSubLineCount();
+      renderSubList();
+      showToast('کانفیگ‌های انتخاب‌شده حذف شدند (برای انتشار، ذخیره کن)', 'warn');
+    }
+
+    async function openSubModal() {
+      const o = localStorage.getItem('gh_owner');
+      const r = localStorage.getItem('gh_repo');
+      const t = localStorage.getItem('gh_token');
+
+      if (!o || !r || !t) {
+        return showToast('لطفاً ابتدا تنظیمات گیت‌هاب را وارد کنید', 'warn');
+      }
+
+      showToast('در حال فراخوانی sub.txt...');
+      try {
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
+          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        if (!res.ok) {
+          if (res.status === 404) {
+            document.getElementById('subContentArea').value = "";
+            currentSubSha = "";
+            updateSubLineCount();
+            selectedSubIndexes.clear();
+            switchSubTab('list');
+            toggleModal('subModal');
+            showToast('فایل sub.txt وجود نداشت؛ می‌توانید ایجاد کنید', 'warn');
+            return;
+          }
+          throw new Error(`خطای ${res.status}`);
+        }
+
+        const data = await res.json();
+        currentSubSha = data.sha;
+        const text = decodeBase64Utf8(data.content);
+        document.getElementById('subContentArea').value = text;
+        updateSubLineCount();
+        selectedSubIndexes.clear();
+        switchSubTab('list');
+        toggleModal('subModal');
+      } catch (err) {
+        showToast('خطا در دریافت sub.txt: ' + err.message, 'error');
+      }
+    }
+
+    async function saveSubFileAction() {
+      const o = localStorage.getItem('gh_owner');
+      const r = localStorage.getItem('gh_repo');
+      const t = localStorage.getItem('gh_token');
+      const content = document.getElementById('subContentArea').value;
+
+      const btn = document.getElementById('saveSubBtn');
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> در حال انتشار...`;
+      lucide.createIcons({ root: btn });
+
+      try {
+        const base64Content = encodeBase64Utf8(content);
+        const payload = {
+          message: 'Update sub.txt via Admin Panel',
+          content: base64Content
+        };
+        if (currentSubSha) {
+          payload.sha = currentSubSha;
+        }
+
+        const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${t}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || `خطا در ذخیره sub.txt: کد ${res.status}`);
+        }
+
+        const resData = await res.json();
+        currentSubSha = resData.content.sha;
+        const count = countValidConfigs(content);
+        document.getElementById('subBadge').innerText = count;
+
+        showToast('کانفیگ‌های ساب با موفقیت ذخیره و منتشر شد');
+        toggleModal('subModal');
+      } catch (err) {
+        showToast('خطا در ذخیره کانفیگ‌ها: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> ذخیره و انتشار کانفیگ‌ها`;
+        lucide.createIcons({ root: btn });
       }
     }
 
@@ -687,6 +1021,7 @@
 
       toggleModal('configModal');
       loadUsersFromGitHub(true);
+      fetchSubConfigCountSilently();
     }
   </script>
 
