@@ -263,22 +263,43 @@
     </div>
   </div>
 
-  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) -->
+  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) - نسخه ارتقایافته تب‌بندی و سلکت -->
   <div id="subModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-3 sm:p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl flex flex-col gap-3 max-h-[90vh]">
+      
       <div class="flex items-center justify-between">
         <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i> مدیریت کانفیگ‌های ساب (sub.txt)
+          <i data-lucide="zap" class="w-5 h-5 text-amber-400"></i> مدیریت کانفیگ‌های ساب
         </h3>
         <span id="subLineCount" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1">۰ کانفیگ</span>
       </div>
-      
-      <p class="text-[11px] text-slate-400">هر خط را یک کانفیگ قرار دهید. خطوط خالی یا با علامت # نادیده گرفته می‌شوند.</p>
-      
+
+      <!-- تب‌ها -->
+      <div class="flex gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <button id="tabListBtn" onclick="switchSubTab('list')" class="flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition">لیست و انتخاب</button>
+        <button id="tabEditBtn" onclick="switchSubTab('edit')" class="flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition">ویرایش متن</button>
+      </div>
+
+      <!-- پنل لیست کانفیگ‌ها -->
+      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1">
+        <!-- توسط جاوااسکریپت پر می‌شود -->
+      </div>
+
+      <!-- پنل ویرایش متن -->
       <textarea id="subContentArea" dir="ltr" rows="13" spellcheck="false"
         oninput="updateSubLineCount()"
         placeholder="vless://...&#10;vmess://...&#10;ss://..."
-        class="w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-emerald-400 font-mono text-xs leading-5 resize-none focus:border-amber-500 outline-none shadow-inner"></textarea>
+        class="hidden w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-emerald-400 font-mono text-xs leading-5 resize-none focus:border-amber-500 outline-none shadow-inner"></textarea>
+
+      <!-- نوار عملیات سلکت -->
+      <div id="subSelectionBar" class="hidden flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+        <span class="text-slate-300 font-bold"><span id="selCount">۰</span> کانفیگ انتخاب شده</span>
+        <div class="flex gap-1.5">
+          <button onclick="copySelectedConfigs()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold hover:bg-emerald-500/20 transition">کپی</button>
+          <button onclick="deleteSelectedConfigs()" class="px-2.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold hover:bg-rose-500/20 transition">حذف</button>
+          <button onclick="clearSubSelection()" class="px-2.5 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-bold hover:bg-slate-700 transition">لغو</button>
+        </div>
+      </div>
 
       <div class="flex gap-2 pt-1">
         <button onclick="toggleModal('subModal')" class="bg-slate-800 py-2.5 px-4 rounded-xl text-xs font-bold hover:bg-slate-700 transition text-slate-300">بستن</button>
@@ -294,6 +315,7 @@
     let currentSha = "";
     let currentSubSha = "";
     let currentFilter = 'all';
+    let selectedSubIndexes = new Set();
     let fpAdd, fpEdit;
 
     // Fast Toast Notification System
@@ -458,7 +480,7 @@
       }
     }
 
-    // ===== بخش جدید: مدیریت sub.txt =====
+    // ===== بخش مدیریت sub.txt =====
     async function fetchSubConfigCountSilently() {
       const o = localStorage.getItem('gh_owner');
       const r = localStorage.getItem('gh_repo');
@@ -506,10 +528,138 @@
         .filter(l => l.length > 0 && !l.startsWith('#')).length;
     }
 
+    function getSubConfigs() {
+      return document.getElementById('subContentArea').value
+        .split('\n').map(l => l.trim())
+        .filter(l => l.length > 0 && !l.startsWith('#'));
+    }
+
     function updateSubLineCount() {
       const content = document.getElementById('subContentArea').value;
       const count = countValidConfigs(content);
       document.getElementById('subLineCount').innerText = `${count} کانفیگ`;
+    }
+
+    function switchSubTab(tab) {
+      const listPanel = document.getElementById('subListPanel');
+      const editPanel = document.getElementById('subContentArea');
+      const tabList = document.getElementById('tabListBtn');
+      const tabEdit = document.getElementById('tabEditBtn');
+
+      if (tab === 'list') {
+        renderSubList();
+        listPanel.classList.remove('hidden');
+        editPanel.classList.add('hidden');
+        tabList.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
+        tabEdit.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+      } else {
+        listPanel.classList.add('hidden');
+        editPanel.classList.remove('hidden');
+        tabEdit.className = 'flex-1 py-2 rounded-lg font-bold bg-amber-500 text-slate-950 transition';
+        tabList.className = 'flex-1 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition';
+      }
+    }
+
+    function renderSubList() {
+      const configs = getSubConfigs();
+      const panel = document.getElementById('subListPanel');
+
+      if (configs.length === 0) {
+        panel.innerHTML = '<div class="text-center py-10 text-slate-500 text-xs">کانفیگی ثبت نشده است.</div>';
+        updateSelBar();
+        return;
+      }
+
+      panel.innerHTML = configs.map((c, i) => {
+        const proto = c.split('://')[0] || 'unknown';
+        const protoColors = {
+          vless: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+          vmess: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
+          trojan: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+          hysteria2: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          hysteria: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          ss: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20'
+        };
+        const pClass = protoColors[proto] || 'text-slate-400 bg-slate-800 border-slate-700';
+        const checked = selectedSubIndexes.has(i);
+
+        return `
+          <div class="flex items-center gap-2 bg-slate-950 border ${checked ? 'border-amber-500/50' : 'border-slate-800'} rounded-xl px-2.5 py-2 transition">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)"
+              class="w-4 h-4 accent-amber-500 shrink-0 cursor-pointer">
+            <span class="font-mono text-[10px] font-black text-slate-500 w-6 text-center shrink-0">#${i + 1}</span>
+            <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 ${pClass}">${proto}</span>
+            <span dir="ltr" class="flex-1 font-mono text-[10px] text-slate-300 truncate">${c.length > 60 ? c.slice(0, 60) + '...' : c}</span>
+            <button onclick="copySingleConfig(${i})" class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition shrink-0" title="کپی این کانفیگ">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      updateSelBar();
+      lucide.createIcons({ root: panel });
+    }
+
+    function toggleSubSelect(i, checked) {
+      if (checked) selectedSubIndexes.add(i);
+      else selectedSubIndexes.delete(i);
+      renderSubList();
+    }
+
+    function updateSelBar() {
+      const bar = document.getElementById('subSelectionBar');
+      document.getElementById('selCount').innerText = selectedSubIndexes.size;
+      bar.classList.toggle('hidden', selectedSubIndexes.size === 0);
+      bar.classList.toggle('flex', selectedSubIndexes.size > 0);
+    }
+
+    function clearSubSelection() {
+      selectedSubIndexes.clear();
+      renderSubList();
+    }
+
+    async function copySingleConfig(i) {
+      const c = getSubConfigs()[i];
+      try {
+        await navigator.clipboard.writeText(c);
+        showToast(`کانفیگ #${i + 1} کپی شد`);
+      } catch (e) {
+        prompt('کانفیگ:', c);
+      }
+    }
+
+    async function copySelectedConfigs() {
+      const configs = getSubConfigs();
+      const sel = [...selectedSubIndexes].sort((a, b) => a - b).map(i => configs[i]).join('\n');
+      if (!sel) return;
+      try {
+        await navigator.clipboard.writeText(sel);
+        showToast(`${selectedSubIndexes.size} کانفیگ کپی شد`);
+      } catch (e) {
+        prompt('کانفیگ‌ها:', sel);
+      }
+    }
+
+    function deleteSelectedConfigs() {
+      if (!confirm(`حذف ${selectedSubIndexes.size} کانفیگ انتخاب‌شده؟`)) return;
+      const allLines = document.getElementById('subContentArea').value.split('\n');
+
+      let cfgIdx = -1;
+      const keep = allLines.filter(line => {
+        const t = line.trim();
+        if (t.length > 0 && !t.startsWith('#')) {
+          cfgIdx++;
+          return !selectedSubIndexes.has(cfgIdx);
+        }
+        return true;
+      });
+
+      document.getElementById('subContentArea').value = keep.join('\n');
+      selectedSubIndexes.clear();
+      updateSubLineCount();
+      renderSubList();
+      showToast('کانفیگ‌های انتخاب‌شده حذف شدند (برای انتشار، ذخیره کن)', 'warn');
     }
 
     async function openSubModal() {
@@ -532,6 +682,8 @@
             document.getElementById('subContentArea').value = "";
             currentSubSha = "";
             updateSubLineCount();
+            selectedSubIndexes.clear();
+            switchSubTab('list');
             toggleModal('subModal');
             showToast('فایل sub.txt وجود نداشت؛ می‌توانید ایجاد کنید', 'warn');
             return;
@@ -544,6 +696,8 @@
         const text = decodeBase64Utf8(data.content);
         document.getElementById('subContentArea').value = text;
         updateSubLineCount();
+        selectedSubIndexes.clear();
+        switchSubTab('list');
         toggleModal('subModal');
       } catch (err) {
         showToast('خطا در دریافت sub.txt: ' + err.message, 'error');
