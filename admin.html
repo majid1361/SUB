@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت ساب‌اسکریپشن | SUB Users</title>
+  
+  <!-- فونت Vazirmatn -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Vazirmatn', 'sans-serif'] },
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons & QRCode -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body { font-family: 'Vazirmatn', sans-serif; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-16">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-md pointer-events-none"></div>
+
+  <!-- هدر اصلی -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 sticky top-0 z-30 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gradient-to-tr from-indigo-600 to-violet-500 rounded-xl shadow-lg shadow-indigo-500/20 text-white">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            SUB Users
+            <span class="text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">Pro</span>
+          </h1>
+          <p class="text-xs text-slate-400">سیستم هوشمند مدیریت اشتراک و کانفیگ‌ها</p>
+        </div>
+      </div>
+
+      <!-- کلیدهای دسترسی سریع -->
+      <div class="flex items-center gap-2">
+        <button id="btn-open-configs" class="relative p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700 flex items-center gap-1.5 text-xs font-medium" title="مدیریت کانفیگ‌های sub.txt">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          <span class="hidden sm:inline">کانفیگ‌ها</span>
+          <span id="header-config-badge" class="px-1.5 py-0.2 bg-indigo-600 text-white rounded-full text-[10px] font-bold">0</span>
+        </button>
+
+        <button id="btn-refresh" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700" title="بروزرسانی داده‌ها">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+
+        <button id="btn-open-settings" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700" title="تنظیمات گیت‌هاب">
+          <i data-lucide="key" class="w-4 h-4 text-amber-400"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 mt-6 space-y-6">
+
+    <!-- کارت‌های آمار سریع -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400">کل کاربران</span>
+          <i data-lucide="users" class="w-4 h-4 text-indigo-400"></i>
+        </div>
+        <div class="mt-2 text-2xl font-black text-white" id="stat-total">0</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400">فعال</span>
+          <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i>
+        </div>
+        <div class="mt-2 text-2xl font-black text-emerald-400" id="stat-active">0</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400">رو به اتمام (≤۷ روز)</span>
+          <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+        </div>
+        <div class="mt-2 text-2xl font-black text-amber-400" id="stat-expiring">0</div>
+      </div>
+      <div class="glass-card p-4 rounded-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-400">کانفیگ‌های ساب</span>
+          <i data-lucide="file-code-2" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div class="mt-2 text-2xl font-black text-cyan-400" id="stat-configs">0</div>
+      </div>
+    </div>
+
+    <!-- بخش فرم افزودن کاربر -->
+    <div class="glass-card p-5 rounded-2xl">
+      <h2 class="text-sm font-bold text-white flex items-center gap-2 mb-4">
+        <i data-lucide="user-plus" class="w-4 h-4 text-indigo-400"></i>
+        افزودن کاربر جدید
+      </h2>
+      <form id="form-add-user" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">نام یا شناسه کاربر</label>
+          <input type="text" id="input-username" placeholder="مثال: majid" required
+            class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">تاریخ انقضا (میلادی)</label>
+          <input type="date" id="input-expiry" required
+            class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            افزودن کاربر
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- جدول کاربران -->
+    <div class="glass-card rounded-2xl overflow-hidden">
+      <div class="p-4 border-b border-slate-800/80 flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i>
+          لیست کاربران
+        </h2>
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="w-4 h-4 absolute right-3 top-2.5 text-slate-400"></i>
+          <input type="text" id="input-search" placeholder="جستجو نام کاربر..."
+            class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pr-9 pl-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-xs">
+          <thead class="bg-slate-900/50 text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="py-3 px-4">کاربر</th>
+              <th class="py-3 px-4">تاریخ انقضا</th>
+              <th class="py-3 px-4">وضعیت</th>
+              <th class="py-3 px-4 text-center">عملیات</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body" class="divide-y divide-slate-800/60">
+            <!-- ردیف‌ها به صورت داینامیک اضافه می‌شوند -->
+          </tbody>
+        </table>
+      </div>
+      <div id="users-empty" class="hidden p-8 text-center text-xs text-slate-500">کاربری یافت نشد.</div>
+    </div>
+  </main>
+
+  <!-- مودال مدیریت کانفیگ‌ها (sub.txt) -->
+  <div id="modal-configs" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-3xl rounded-2xl max-h-[90vh] flex flex-col border border-slate-700 shadow-2xl">
+      
+      <!-- هدر مودال -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i>
+          <h3 class="text-sm font-bold text-white">مدیریت کانفیگ‌های sub.txt</h3>
+        </div>
+        <button id="btn-close-configs" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- اکشن بار گروهی -->
+      <div class="p-3 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-white">
+            <input type="checkbox" id="chk-select-all" class="rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer">
+            <span class="font-medium">انتخاب همه</span>
+          </label>
+          <span id="selected-count-badge" class="text-slate-500 font-mono">(0 انتخاب شده)</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-copy-selected" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 border border-slate-700">
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>کپی انتخاب‌شده‌ها</span>
+          </button>
+          <button id="btn-delete-selected" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-400 hover:text-red-300 transition flex items-center gap-1.5 border border-red-800/40">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>حذف</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- لیست اسکرول‌خور کانفیگ‌ها -->
+      <div id="configs-container" class="p-4 overflow-y-auto custom-scroll space-y-2 flex-1">
+        <!-- کانفیگ‌ها اینجا رندر می‌شوند -->
+      </div>
+
+      <!-- فوتر مودال -->
+      <div class="p-3 border-t border-slate-800 bg-slate-900/40 flex justify-between items-center text-xs">
+        <span id="configs-footer-count" class="text-slate-400">تعداد کل: 0</span>
+        <button id="btn-save-sub-changes" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition shadow-lg shadow-indigo-600/30 flex items-center gap-1.5">
+          <i data-lucide="save" class="w-4 h-4"></i>
+          ذخیره و کامیت روی گیت‌هاب
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تنظیمات توکن گیت‌هاب -->
+  <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="glass-card w-full max-w-md rounded-2xl p-5 border border-slate-700 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="settings" class="w-4 h-4 text-indigo-400"></i>
+          تنظیمات اتصال مخزن گیت‌هاب
+        </h3>
+        <button id="btn-close-settings" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Owner (نام کاربری گیت‌هاب)</label>
+          <input type="text" id="setting-owner" placeholder="مثال: your-username"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Repo (نام مخزن)</label>
+          <input type="text" id="setting-repo" placeholder="مثال: sub-manager"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">PAT Token (با دسترسی repo)</label>
+          <input type="password" id="setting-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <button id="btn-save-settings" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition shadow-lg shadow-indigo-600/30">
+          ذخیره و اتصال
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // مدیریت امن توکن و تنظیمات (با حفظ توکن قبلی)
+    // ==========================================
+    function getStoredSettings() {
+      // بررسی تمام کلیدهای احتمالی قبلی در مرورگر
+      const savedJson = localStorage.getItem('github_settings') || localStorage.getItem('sub_users_settings');
+      let parsed = {};
+      if (savedJson) {
+        try { parsed = JSON.parse(savedJson); } catch (e) {}
+      }
+      
+      const token = (parsed.token || localStorage.getItem('gh_token') || localStorage.getItem('config_token') || '').trim();
+      const owner = (parsed.owner || localStorage.getItem('gh_owner') || '').trim();
+      const repo = (parsed.repo || localStorage.getItem('gh_repo') || '').trim();
+
+      return { owner, repo, token };
+    }
+
+    let GITHUB_CONFIG = getStoredSettings();
+
+    function saveSettings(owner, repo, token) {
+      const cleanToken = (token || '').trim();
+      const cleanOwner = (owner || '').trim();
+      const cleanRepo = (repo || '').trim();
+
+      GITHUB_CONFIG = { owner: cleanOwner, repo: cleanRepo, token: cleanToken };
+      localStorage.setItem('github_settings', JSON.stringify(GITHUB_CONFIG));
+      // برای سازگاری همگام نگه می‌داریم:
+      localStorage.setItem('gh_token', cleanToken);
+      localStorage.setItem('gh_owner', cleanOwner);
+      localStorage.setItem('gh_repo', cleanRepo);
+    }
+
+    // ==========================================
+    // متغیرهای حالت برنامه (State)
+    // ==========================================
+    let usersData = [];
+    let usersFileSha = null;
+    let subConfigsList = [];
+    let subFileSha = null;
+    let selectedConfigIndices = new Set();
+
+    // ==========================================
+    // سیستم نوتیفیکیشن (Toast)
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-emerald-950/90 border-emerald-600/60 text-emerald-200',
+        error: 'bg-red-950/90 border-red-600/60 text-red-200',
+        info: 'bg-slate-900/95 border-slate-700 text-slate-200'
+      };
+
+      toast.className = `pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl border text-xs shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `
+        <div class="flex items-center gap-2">
+          <i data-lucide="${type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'info'}" class="w-4 h-4 shrink-0"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ==========================================
+    // استخراج هوشمند Remark (نام کانفیگ)
+    // ==========================================
+    function getConfigDisplayName(rawConfig) {
+      if (!rawConfig) return 'کانفیگ ناشناس';
+      const trimmed = rawConfig.trim();
+
+      // ۱. بررسی Fragment (#) در پروتکل‌های vless, vmess, trojan, ss
+      if (trimmed.includes('#')) {
+        const parts = trimmed.split('#');
+        if (parts[1] && parts[1].trim()) {
+          try {
+            return decodeURIComponent(parts[1].trim());
+          } catch (e) {
+            return parts[1].trim();
+          }
+        }
+      }
+
+      // ۲. بررسی حالت vmess:// base64 JSON
+      if (trimmed.startsWith('vmess://')) {
+        try {
+          const b64 = trimmed.replace('vmess://', '');
+          const decoded = atob(b64);
+          const obj = JSON.parse(decoded);
+          if (obj.ps) return obj.ps;
+        } catch (e) {}
+      }
+
+      // ۳. فال‌بک به پروتکل و آی‌پی خلاصه
+      try {
+        const protocol = trimmed.split('://')[0];
+        return `${protocol.toUpperCase()} - ${trimmed.substring(0, 24)}...`;
+      } catch (e) {
+        return trimmed.substring(0, 30);
+      }
+    }
+
+    // ==========================================
+    // ارتباط با API گیت‌هاب (Github Fetcher)
+    // ==========================================
+    async function fetchGithubFile(path) {
+      if (!GITHUB_CONFIG.token || !GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo) {
+        return null;
+      }
+
+      const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${path}`;
+      const res = await fetch(url, {
+        headers: {
+          'Authorization': `token ${GITHUB_CONFIG.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        cache: 'no-store'
+      });
+
+      if (res.status === 401) {
+        showToast('توکن گیت‌هاب نامعتبر است (401)', 'error');
+        return null;
+      }
+
+      if (!res.ok) {
+        if (res.status === 404) return { notFound: true };
+        throw new Error(`خطای سرور: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
+      return { sha: data.sha, content };
+    }
+
+    async function commitGithubFile(path, content, message, sha) {
+      if (!GITHUB_CONFIG.token) {
+        showToast('لطفاً ابتدا توکن را در تنظیمات وارد کنید', 'error');
+        return false;
+      }
+
+      const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${path}`;
+      const encoded = btoa(unescape(encodeURIComponent(content)));
+
+      const body = { message, content: encoded };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_CONFIG.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (res.status === 401) {
+        showToast('عدم دسترسی! توکن منقضی یا اشتباه است', 'error');
+        return false;
+      }
+
+      return res.ok;
+    }
+
+    // ==========================================
+    // لود و مدیریت sub.txt
+    // ==========================================
+    async function loadSubTxtConfigs() {
+      if (!GITHUB_CONFIG.token) return;
+
+      try {
+        const file = await fetchGithubFile('sub.txt');
+        if (!file || file.notFound) {
+          subConfigsList = [];
+          subFileSha = null;
+        } else {
+          subFileSha = file.sha;
+          subConfigsList = file.content
+            .split('\n')
+            .map(c => c.trim())
+            .filter(c => c.length > 0);
+        }
+
+        updateConfigsBadge();
+        renderConfigsModal();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateConfigsBadge() {
+      const count = subConfigsList.length;
+      document.getElementById('header-config-badge').innerText = count;
+      document.getElementById('stat-configs').innerText = count;
+      document.getElementById('configs-footer-count').innerText = `تعداد کل: ${count}`;
+    }
+
+    function renderConfigsModal() {
+      const container = document.getElementById('configs-container');
+      container.innerHTML = '';
+      selectedConfigIndices.clear();
+      updateSelectedUI();
+
+      if (subConfigsList.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-xs text-slate-500">هیچ کانفیگی در sub.txt وجود ندارد.</div>';
+        return;
+      }
+
+      subConfigsList.forEach((cfg, idx) => {
+        const displayName = getConfigDisplayName(cfg);
+        const protocol = cfg.split('://')[0] || 'cfg';
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition gap-2 text-xs';
+        
+        row.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <input type="checkbox" data-index="${idx}" class="cfg-checkbox rounded bg-slate-800 border-slate-700 text-indigo-600 focus:ring-0 w-4 h-4 cursor-pointer">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono uppercase text-indigo-400 border border-slate-700">${protocol}</span>
+                <span class="font-medium text-slate-200 truncate block select-all">${displayName}</span>
+              </div>
+              <div class="text-[11px] text-slate-500 font-mono truncate mt-0.5">${cfg}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button class="btn-copy-single p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="کپی">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+            <button class="btn-delete-single p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-950/40 transition" title="حذف">
+              <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+
+        // رویدادهای ردیف
+        const chk = row.querySelector('.cfg-checkbox');
+        chk.addEventListener('change', (e) => {
+          if (e.target.checked) selectedConfigIndices.add(idx);
+          else selectedConfigIndices.delete(idx);
+          updateSelectedUI();
+        });
+
+        row.querySelector('.btn-copy-single').addEventListener('click', () => {
+          navigator.clipboard.writeText(cfg);
+          showToast('کانفیگ کپی شد', 'success');
+        });
+
+        row.querySelector('.btn-delete-single').addEventListener('click', () => {
+          subConfigsList.splice(idx, 1);
+          renderConfigsModal();
+          updateConfigsBadge();
+          showToast('از لیست موقت حذف شد (دکمه ذخیره را بزنید)', 'info');
+        });
+
+        container.appendChild(row);
+      });
+
+      lucide.createIcons();
+    }
+
+    function updateSelectedUI() {
+      const badge = document.getElementById('selected-count-badge');
+      const masterCheck = document.getElementById('chk-select-all');
+      badge.innerText = `(${selectedConfigIndices.size} انتخاب شده)`;
+
+      if (subConfigsList.length > 0 && selectedConfigIndices.size === subConfigsList.length) {
+        masterCheck.checked = true;
+        masterCheck.indeterminate = false;
+      } else if (selectedConfigIndices.size > 0) {
+        masterCheck.checked = false;
+        masterCheck.indeterminate = true;
+      } else {
+        masterCheck.checked = false;
+        masterCheck.indeterminate = false;
+      }
+    }
+
+    // انتخاب / لغو انتخاب همه
+    document.getElementById('chk-select-all').addEventListener('change', (e) => {
+      const checks = document.querySelectorAll('.cfg-checkbox');
+      selectedConfigIndices.clear();
+      checks.forEach((chk, idx) => {
+        chk.checked = e.target.checked;
+        if (e.target.checked) selectedConfigIndices.add(idx);
+      });
+      updateSelectedUI();
+    });
+
+    // کپی گروهی
+    document.getElementById('btn-copy-selected').addEventListener('click', () => {
+      if (selectedConfigIndices.size === 0) {
+        showToast('ابتدا حداقل یک کانفیگ را تیک بزنید', 'error');
+        return;
+      }
+      const selectedLines = Array.from(selectedConfigIndices).map(idx => subConfigsList[idx]);
+      navigator.clipboard.writeText(selectedLines.join('\n'));
+      showToast(`${selectedLines.length} کانفیگ کپی شد`, 'success');
+    });
+
+    // حذف گروهی
+    document.getElementById('btn-delete-selected').addEventListener('click', () => {
+      if (selectedConfigIndices.size === 0) {
+        showToast('هیچ کانفیگی انتخاب نشده است', 'error');
+        return;
+      }
+      if (!confirm(`آیا از حذف ${selectedConfigIndices.size} کانفیگ انتخاب‌شده اطمینان دارید؟`)) return;
+
+      subConfigsList = subConfigsList.filter((_, idx) => !selectedConfigIndices.has(idx));
+      selectedConfigIndices.clear();
+      renderConfigsModal();
+      updateConfigsBadge();
+      showToast('کانفیگ‌ها حذف شدند. جهت اعمال روی گیت‌هاب دکمه ذخیره را بزنید.', 'info');
+    });
+
+    // ذخیره روی گیت‌هاب (sub.txt)
+    document.getElementById('btn-save-sub-changes').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-save-sub-changes');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> در حال ارسال...';
+      lucide.createIcons();
+
+      try {
+        const newContent = subConfigsList.join('\n');
+        const ok = await commitGithubFile('sub.txt', newContent, 'Update sub.txt configs via Admin Panel', subFileSha);
+        if (ok) {
+          showToast('فایل sub.txt با موفقیت بروزرسانی شد', 'success');
+          await loadSubTxtConfigs();
+        } else {
+          showToast('خطا در ذخیره فایل روی مخزن', 'error');
+        }
+      } catch (err) {
+        showToast('خطای ناشناخته رخ داد', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> ذخیره و کامیت روی گیت‌هاب';
+        lucide.createIcons();
+      }
+    });
+
+    // ==========================================
+    // بارگذاری کاربران (users.json)
+    // ==========================================
+    async function loadUsers() {
+      if (!GITHUB_CONFIG.token || !GITHUB_CONFIG.owner) {
+        document.getElementById('modal-settings').classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const file = await fetchGithubFile('users.json');
+        if (file && file.content) {
+          usersFileSha = file.sha;
+          usersData = JSON.parse(file.content);
+        } else {
+          usersData = [];
+        }
+        renderUserTable();
+        updateUserStats();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function updateUserStats() {
+      const total = usersData.length;
+      const now = new Date();
+      let active = 0;
+      let expiring = 0;
+
+      usersData.forEach(u => {
+        const exp = new Date(u.expiry);
+        const diffDays = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 0) {
+          active++;
+          if (diffDays <= 7) expiring++;
+        }
+      });
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-active').innerText = active;
+      document.getElementById('stat-expiring').innerText = expiring;
+    }
+
+    function renderUserTable(filter = '') {
+      const tbody = document.getElementById('user-table-body');
+      tbody.innerHTML = '';
+
+      const filtered = usersData.filter(u => u.username.toLowerCase().includes(filter.toLowerCase()));
+      const emptyEl = document.getElementById('users-empty');
+
+      if (filtered.length === 0) {
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+      emptyEl.classList.add('hidden');
+
+      const now = new Date();
+
+      filtered.forEach((u, i) => {
+        const exp = new Date(u.expiry);
+        const diffDays = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+        
+        let statusBadge = '';
+        if (diffDays < 0) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[11px] bg-red-950/60 text-red-400 border border-red-800/40 font-medium">منقضی</span>';
+        } else if (diffDays <= 7) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] bg-amber-950/60 text-amber-400 border border-amber-800/40 font-medium">${diffDays} روز باقی‌مانده</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[11px] bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-medium">${diffDays} روز</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-900/40 transition';
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-white">${u.username}</td>
+          <td class="py-3 px-4 font-mono text-slate-300">${u.expiry}</td>
+          <td class="py-3 px-4">${statusBadge}</td>
+          <td class="py-3 px-4 text-center">
+            <button class="btn-del-user p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-950/40 transition" title="حذف کاربر">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        `;
+
+        tr.querySelector('.btn-del-user').addEventListener('click', async () => {
+          if (!confirm(`آیا کاربر ${u.username} حذف شود؟`)) return;
+          usersData.splice(i, 1);
+          const ok = await commitGithubFile('users.json', JSON.stringify(usersData, null, 2), `Remove user ${u.username}`, usersFileSha);
+          if (ok) {
+            showToast('کاربر با موفقیت حذف شد', 'success');
+            loadUsers();
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    // رویداد ثبت کاربر جدید
+    document.getElementById('form-add-user').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('input-username').value.trim();
+      const expiry = document.getElementById('input-expiry').value;
+
+      if (!username || !expiry) return;
+
+      usersData.push({ username, expiry, createdAt: new Date().toISOString() });
+      const ok = await commitGithubFile('users.json', JSON.stringify(usersData, null, 2), `Add user ${username}`, usersFileSha);
+      if (ok) {
+        showToast(`کاربر ${username} افزوده شد`, 'success');
+        document.getElementById('input-username').value = '';
+        document.getElementById('input-expiry').value = '';
+        loadUsers();
+      }
+    });
+
+    // سرچ کاربران
+    document.getElementById('input-search').addEventListener('input', (e) => {
+      renderUserTable(e.target.value);
+    });
+
+    // ==========================================
+    // دیالوگ‌ها و لیسنرها
+    // ==========================================
+    document.getElementById('btn-open-configs').addEventListener('click', () => {
+      document.getElementById('modal-configs').classList.remove('hidden');
+      renderConfigsModal();
+    });
+    document.getElementById('btn-close-configs').addEventListener('click', () => {
+      document.getElementById('modal-configs').classList.add('hidden');
+    });
+
+    document.getElementById('btn-open-settings').addEventListener('click', () => {
+      document.getElementById('setting-owner').value = GITHUB_CONFIG.owner || '';
+      document.getElementById('setting-repo').value = GITHUB_CONFIG.repo || '';
+      document.getElementById('setting-token').value = GITHUB_CONFIG.token || '';
+      document.getElementById('modal-settings').classList.remove('hidden');
+    });
+    document.getElementById('btn-close-settings').addEventListener('click', () => {
+      document.getElementById('modal-settings').classList.add('hidden');
+    });
+
+    document.getElementById('btn-save-settings').addEventListener('click', () => {
+      const owner = document.getElementById('setting-owner').value;
+      const repo = document.getElementById('setting-repo').value;
+      const token = document.getElementById('setting-token').value;
+
+      saveSettings(owner, repo, token);
+      document.getElementById('modal-settings').classList.add('hidden');
+      showToast('تنظیمات ذخیره شد. در حال اتصال...', 'info');
+      loadUsers();
+      loadSubTxtConfigs();
+    });
+
+    document.getElementById('btn-refresh').addEventListener('click', () => {
+      showToast('در حال همگام‌سازی...', 'info');
+      loadUsers();
+      loadSubTxtConfigs();
+    });
+
+    // راه‌اندازی اولیه
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      if (!GITHUB_CONFIG.token) {
+        document.getElementById('modal-settings').classList.remove('hidden');
+      } else {
+        loadUsers();
+        loadSubTxtConfigs();
+      }
+    });
+  </script>
+</body>
+</html>
