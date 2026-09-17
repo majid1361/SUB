@@ -22,7 +22,7 @@
   
   <!-- Flatpickr Dark Theme -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -37,7 +37,7 @@
       font-family: 'Vazirmatn', sans-serif !important;
     }
     
-    /* Optimized Glass Panel (Lightweight) */
+    /* Optimized Glass Panel */
     .glass-header {
       background: #0f172ae6;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -94,7 +94,7 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons (هم‌اندازه و کامپکت) -->
+      <!-- Header Action Buttons -->
       <div class="flex items-center gap-2">
         <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ دیتابیس (JSON)">
           <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -107,7 +107,7 @@
           <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
           <span id="subBadge" class="absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow">0</span>
         </button>
-        <!-- دکمه تنظیمات فقط با آیکون هم‌اندازه بقیه -->
+        <!-- دکمه تنظیمات -->
         <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition shadow" title="تنظیمات اتصال گیت‌هاب">
           <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
@@ -263,7 +263,7 @@
     </div>
   </div>
 
-  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) - نسخه ارتقایافته تب‌بندی و سلکت -->
+  <!-- Modal مدیریت کانفیگ‌ها (sub.txt) - نسخه فوق پیشرفته با نام کانفیگ و انتخاب همه -->
   <div id="subModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-3 sm:p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-4 sm:p-5 shadow-2xl flex flex-col gap-3 max-h-[90vh]">
       
@@ -281,7 +281,7 @@
       </div>
 
       <!-- پنل لیست کانفیگ‌ها -->
-      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] max-h-[45vh] pr-1">
+      <div id="subListPanel" class="flex-1 overflow-y-auto space-y-1.5 min-h-[220px] max-h-[48vh] pr-1">
         <!-- توسط جاوااسکریپت پر می‌شود -->
       </div>
 
@@ -291,12 +291,16 @@
         placeholder="vless://...&#10;vmess://...&#10;ss://..."
         class="hidden w-full flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-emerald-400 font-mono text-xs leading-5 resize-none focus:border-amber-500 outline-none shadow-inner"></textarea>
 
-      <!-- نوار عملیات سلکت -->
+      <!-- نوار عملیات هوشمند سلکت -->
       <div id="subSelectionBar" class="hidden flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
         <span class="text-slate-300 font-bold"><span id="selCount">۰</span> کانفیگ انتخاب شده</span>
         <div class="flex gap-1.5">
-          <button onclick="copySelectedConfigs()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold hover:bg-emerald-500/20 transition">کپی</button>
-          <button onclick="deleteSelectedConfigs()" class="px-2.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold hover:bg-rose-500/20 transition">حذف</button>
+          <button onclick="copySelectedConfigs()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold hover:bg-emerald-500/20 transition flex items-center gap-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> کپی
+          </button>
+          <button onclick="deleteSelectedConfigs()" class="px-2.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold hover:bg-rose-500/20 transition flex items-center gap-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> حذف
+          </button>
           <button onclick="clearSubSelection()" class="px-2.5 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-bold hover:bg-slate-700 transition">لغو</button>
         </div>
       </div>
@@ -443,7 +447,7 @@
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
           headers: { 
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X0X`,
             'Accept': 'application/vnd.github.v3+json'
           }
         });
@@ -469,7 +473,7 @@
     async function fetchShaSilently(o, r, t) {
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}` }
+          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X1X` }
         });
         if (res.ok) {
           const data = await res.json();
@@ -489,7 +493,7 @@
 
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X2X`, 'Accept': 'application/vnd.github.v3+json' }
         });
         if (res.ok) {
           const data = await res.json();
@@ -540,6 +544,34 @@
       document.getElementById('subLineCount').innerText = `${count} کانفیگ`;
     }
 
+    // تابع استخراج نام/ریمپ دقیق کانفیگ (Remark)
+    function getConfigDisplayName(c) {
+      if (!c) return 'نامشخص';
+
+      // 1. پشتیبانی از VMess (فرمت Json در Base64)
+      if (c.startsWith('vmess://')) {
+        try {
+          const b64 = c.replace('vmess://', '').trim();
+          const jsonStr = decodeBase64Utf8(b64);
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.ps) return parsed.ps;
+        } catch (e) {}
+      }
+
+      // 2. پشتیبانی از تمامی پروتکل‌ها با # (Fragment)
+      if (c.includes('#')) {
+        try {
+          const hashVal = c.substring(c.indexOf('#') + 1);
+          return decodeURIComponent(hashVal).trim();
+        } catch (e) {
+          return c.substring(c.indexOf('#') + 1).trim();
+        }
+      }
+
+      // 3. در صورت نبود ریمارک، نمایش خلاصه آدرس
+      return c.length > 45 ? c.slice(0, 45) + '...' : c;
+    }
+
     function switchSubTab(tab) {
       const listPanel = document.getElementById('subListPanel');
       const editPanel = document.getElementById('subContentArea');
@@ -570,7 +602,21 @@
         return;
       }
 
-      panel.innerHTML = configs.map((c, i) => {
+      const allSelected = configs.length > 0 && selectedSubIndexes.size === configs.length;
+
+      // هدر نوار انتخاب همه
+      let html = `
+        <div class="flex items-center justify-between bg-slate-950/70 border border-slate-800/80 rounded-xl px-3 py-2 mb-2 text-xs">
+          <label class="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" ${allSelected ? 'checked' : ''} onchange="toggleSelectAll(this.checked)"
+              class="w-4 h-4 accent-amber-500 rounded cursor-pointer">
+            <span class="font-bold text-slate-200">انتخاب تمام موارد (${configs.length})</span>
+          </label>
+          <span class="text-[11px] font-bold text-amber-400 font-mono">${selectedSubIndexes.size} مورد انتخاب شد</span>
+        </div>
+      `;
+
+      html += configs.map((c, i) => {
         const proto = c.split('://')[0] || 'unknown';
         const protoColors = {
           vless: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
@@ -582,14 +628,15 @@
         };
         const pClass = protoColors[proto] || 'text-slate-400 bg-slate-800 border-slate-700';
         const checked = selectedSubIndexes.has(i);
+        const displayName = getConfigDisplayName(c);
 
         return `
-          <div class="flex items-center gap-2 bg-slate-950 border ${checked ? 'border-amber-500/50' : 'border-slate-800'} rounded-xl px-2.5 py-2 transition">
+          <div class="flex items-center gap-2 bg-slate-950 border ${checked ? 'border-amber-500/60 bg-amber-500/5' : 'border-slate-800'} rounded-xl px-2.5 py-2 transition">
             <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)"
               class="w-4 h-4 accent-amber-500 shrink-0 cursor-pointer">
-            <span class="font-mono text-[10px] font-black text-slate-500 w-6 text-center shrink-0">#${i + 1}</span>
+            <span class="font-mono text-[10px] font-black text-slate-500 w-5 text-center shrink-0">#${i + 1}</span>
             <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 ${pClass}">${proto}</span>
-            <span dir="ltr" class="flex-1 font-mono text-[10px] text-slate-300 truncate">${c.length > 60 ? c.slice(0, 60) + '...' : c}</span>
+            <span dir="ltr" class="flex-1 font-sans font-bold text-xs text-slate-200 truncate" title="${displayName}">${displayName}</span>
             <button onclick="copySingleConfig(${i})" class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition shrink-0" title="کپی این کانفیگ">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
             </button>
@@ -597,8 +644,19 @@
         `;
       }).join('');
 
+      panel.innerHTML = html;
       updateSelBar();
       lucide.createIcons({ root: panel });
+    }
+
+    function toggleSelectAll(checked) {
+      const configs = getSubConfigs();
+      if (checked) {
+        selectedSubIndexes = new Set(configs.map((_, i) => i));
+      } else {
+        selectedSubIndexes.clear();
+      }
+      renderSubList();
     }
 
     function toggleSubSelect(i, checked) {
@@ -642,7 +700,8 @@
     }
 
     function deleteSelectedConfigs() {
-      if (!confirm(`حذف ${selectedSubIndexes.size} کانفیگ انتخاب‌شده؟`)) return;
+      const count = selectedSubIndexes.size;
+      if (!confirm(`آیا از حذف ${count} کانفیگ انتخاب‌شده مطمئن هستید؟`)) return;
       const allLines = document.getElementById('subContentArea').value.split('\n');
 
       let cfgIdx = -1;
@@ -659,7 +718,7 @@
       selectedSubIndexes.clear();
       updateSubLineCount();
       renderSubList();
-      showToast('کانفیگ‌های انتخاب‌شده حذف شدند (برای انتشار، ذخیره کن)', 'warn');
+      showToast(`${count} کانفیگ حذف شد (برای اعمال، دکمه ذخیره و انتشار را بزنید)`, 'warn');
     }
 
     async function openSubModal() {
@@ -674,7 +733,7 @@
       showToast('در حال فراخوانی sub.txt...');
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X3X`, 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!res.ok) {
@@ -728,7 +787,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X4X`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
@@ -935,7 +994,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X5X`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
