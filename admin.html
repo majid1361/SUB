@@ -447,7 +447,7 @@
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
           headers: { 
-            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X0X`,
+            'Authorization': `GAPGPTMASKTOKENex4u3jijfwX0X`,
             'Accept': 'application/vnd.github.v3+json'
           }
         });
@@ -473,7 +473,7 @@
     async function fetchShaSilently(o, r, t) {
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
-          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X1X` }
+          headers: { 'Authorization': `GAPGPTMASKTOKENex4u3jijfwX1X` }
         });
         if (res.ok) {
           const data = await res.json();
@@ -493,7 +493,7 @@
 
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X2X`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `GAPGPTMASKTOKENex4u3jijfwX2X`, 'Accept': 'application/vnd.github.v3+json' }
         });
         if (res.ok) {
           const data = await res.json();
@@ -733,7 +733,7 @@
       showToast('در حال فراخوانی sub.txt...');
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X3X`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `GAPGPTMASKTOKENex4u3jijfwX3X`, 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!res.ok) {
@@ -787,7 +787,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt`, {
           method: 'PUT',
           headers: {
-            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X4X`,
+            'Authorization': `GAPGPTMASKTOKENex4u3jijfwX4X`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
@@ -994,7 +994,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
           headers: {
-            'Authorization': `GAPGPTMASKTOKENt6qyvbyu2p9X5X`,
+            'Authorization': `GAPGPTMASKTOKENex4u3jijfwX5X`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
