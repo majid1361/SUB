@@ -665,23 +665,27 @@
       }
     }
 
-    // حذف دقیق و ضد باگ کانفیگ‌ها
-    function deleteSelectedConfigs() {
-      if (selectedSubIndexes.size === 0) return;
-      if (!confirm(`حذف ${selectedSubIndexes.size} کانفیگ انتخاب‌شده؟`)) return;
+     // حذف دقیق و ذخیره خودکار روی گیت‌هاب
+  async function deleteSelectedConfigs() {
+    if (selectedSubIndexes.size === 0) return;
+    
+    const msg = "آیا از حذف " + selectedSubIndexes.size + " کانفیگ انتخاب‌شده و اعمال در گیت‌هاب اطمینان دارید؟";
+    if (!confirm(msg)) return;
 
-      const configs = getSubConfigs();
-      const configsToDelete = new Set([...selectedSubIndexes].map(i => configs[i]));
+    const configs = getSubConfigs();
+    const configsToDelete = new Set([...selectedSubIndexes].map(i => configs[i]));
 
-      const allLines = document.getElementById('subContentArea').value.split('\n');
-      const keep = allLines.filter(line => !configsToDelete.has(line.trim()));
+    const allLines = document.getElementById('subContentArea').value.split('\n');
+    const keep = allLines.filter(line => !configsToDelete.has(line.trim()));
 
-      document.getElementById('subContentArea').value = keep.join('\n');
-      selectedSubIndexes.clear();
-      updateSubLineCount();
-      renderSubList();
-      showToast('کانفیگ‌های انتخاب‌شده حذف شدند (برای انتشار، ذخیره کن)', 'warn');
-    }
+    document.getElementById('subContentArea').value = keep.join('\n');
+    selectedSubIndexes.clear();
+    updateSubLineCount();
+    renderSubList();
+
+    // سینک آنی و کامیت مستقیم روی گیت‌هاب
+    await saveSubFileAction();
+  }
 
     async function openSubModal() {
       const o = localStorage.getItem('gh_owner');
