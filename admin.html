@@ -295,6 +295,7 @@
       <div id="subSelectionBar" class="hidden flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
         <span class="text-slate-300 font-bold"><span id="selCount">۰</span> کانفیگ انتخاب شده</span>
         <div class="flex gap-1.5">
+          <button onclick="selectAllConfigs()" class="px-2.5 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-lg font-bold hover:bg-blue-500/20 transition">انتخاب همه</button>
           <button onclick="copySelectedConfigs()" class="px-2.5 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg font-bold hover:bg-emerald-500/20 transition">کپی</button>
           <button onclick="deleteSelectedConfigs()" class="px-2.5 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg font-bold hover:bg-rose-500/20 transition">حذف</button>
           <button onclick="clearSubSelection()" class="px-2.5 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-lg font-bold hover:bg-slate-700 transition">لغو</button>
@@ -443,7 +444,7 @@
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
           headers: { 
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `token ${t}`,
             'Accept': 'application/vnd.github.v3+json'
           }
         });
@@ -469,7 +470,7 @@
     async function fetchShaSilently(o, r, t) {
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}` }
+          headers: { 'Authorization': `token ${t}` }
         });
         if (res.ok) {
           const data = await res.json();
@@ -489,7 +490,7 @@
 
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `token ${t}`, 'Accept': 'application/vnd.github.v3+json' }
         });
         if (res.ok) {
           const data = await res.json();
@@ -572,6 +573,20 @@
 
       panel.innerHTML = configs.map((c, i) => {
         const proto = c.split('://')[0] || 'unknown';
+        let configName = proto;
+        const hashIdx = c.indexOf('#');
+        if (hashIdx !== -1) {
+          const rawName = c.slice(hashIdx + 1).trim();
+          if (rawName) {
+            try {
+              configName = decodeURIComponent(rawName);
+            } catch (e) {
+              configName = rawName;
+            }
+          }
+        }
+        const safeConfigName = configName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
         const protoColors = {
           vless: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
           vmess: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
@@ -588,7 +603,7 @@
             <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSubSelect(${i}, this.checked)"
               class="w-4 h-4 accent-amber-500 shrink-0 cursor-pointer">
             <span class="font-mono text-[10px] font-black text-slate-500 w-6 text-center shrink-0">#${i + 1}</span>
-            <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 ${pClass}">${proto}</span>
+            <span class="px-2 py-0.5 rounded border text-[10px] font-bold shrink-0 max-w-[120px] sm:max-w-[160px] truncate ${pClass}" title="${safeConfigName}">${safeConfigName}</span>
             <span dir="ltr" class="flex-1 font-mono text-[10px] text-slate-300 truncate">${c.length > 60 ? c.slice(0, 60) + '...' : c}</span>
             <button onclick="copySingleConfig(${i})" class="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition shrink-0" title="کپی این کانفیگ">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
@@ -604,6 +619,12 @@
     function toggleSubSelect(i, checked) {
       if (checked) selectedSubIndexes.add(i);
       else selectedSubIndexes.delete(i);
+      renderSubList();
+    }
+
+    function selectAllConfigs() {
+      const configs = getSubConfigs();
+      configs.forEach((_, i) => selectedSubIndexes.add(i));
       renderSubList();
     }
 
@@ -674,7 +695,7 @@
       showToast('در حال فراخوانی sub.txt...');
       try {
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt?t=${Date.now()}`, {
-          headers: { 'Authorization': `Bearer ${t}`, 'Accept': 'application/vnd.github.v3+json' }
+          headers: { 'Authorization': `token ${t}`, 'Accept': 'application/vnd.github.v3+json' }
         });
 
         if (!res.ok) {
@@ -728,7 +749,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/sub.txt`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `token ${t}`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
@@ -935,7 +956,7 @@
         const res = await fetch(`https://api.github.com/repos/${o}/${r}/contents/users.json`, {
           method: 'PUT',
           headers: {
-            'Authorization': `Bearer ${t}`,
+            'Authorization': `token ${t}`,
             'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json'
           },
