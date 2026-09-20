@@ -1,0 +1,111 @@
+name: Test Sub Configs (Safe Host Resolve Only)
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  filter_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch, Filter Mask, Resolve Hostnames, Write to subtest.txt
+        run: |
+          python -c '
+          import urllib.request
+          import urllib.parse
+          import ssl
+          import socket
+          import ipaddress
+          from concurrent.futures import ThreadPoolExecutor
+
+          SOURCE_URL = "https://raw.githubusercontent.com/majid1361/StealthyStream/main/vless_trojan_filtered.txt"
+
+          def extract_host(cfg: str):
+              try:
+                  clean_uri = cfg.split("#")[0]
+                  p = urllib.parse.urlparse(clean_uri)
+                  return (p.hostname or "").strip()
+              except Exception:
+                  return ""
+
+          def host_ok(host: str) -> bool:
+              if not host:
+                  return False
+
+              # بررسی صحت آی‌پی
+              try:
+                  ipaddress.ip_address(host)
+                  return True
+              except Exception:
+                  pass
+
+              # تست رزولوشن DNS دامنه
+              try:
+                  socket.getaddrinfo(host, None)
+                  return True
+              except Exception:
+                  return False
+
+          try:
+              ctx = ssl.create_default_context()
+              ctx.check_hostname = False
+              ctx.verify_mode = ssl.CERT_NONE
+
+              req = urllib.request.Request(SOURCE_URL, headers={"User-Agent": "Mozilla/5.0"})
+              with urllib.request.urlopen(req, context=ctx, timeout=20) as resp:
+                  content = resp.read().decode("utf-8", errors="ignore")
+
+              lines = content.splitlines()
+              filtered = []
+
+              for line in lines:
+                  cfg = line.strip()
+                  if not cfg:
+                      continue
+
+                  low = cfg.lower()
+
+                  # فیلتر فرگمنت و فاینال‌ماسک
+                  if "finalmask" in low or "%22fragment%22" in low:
+                      continue
+
+                  filtered.append(cfg)
+
+              print(f"Configs fetched and mask-filtered: {len(filtered)}")
+
+              def check_cfg(cfg):
+                  h = extract_host(cfg)
+                  return cfg if host_ok(h) else None
+
+              alive = []
+              with ThreadPoolExecutor(max_workers=40) as ex:
+                  for res in ex.map(check_cfg, filtered):
+                      if res:
+                          alive.append(res)
+
+              with open("subtest.txt", "w", encoding="utf-8") as f:
+                  f.write("\n".join(alive) + "\n")
+
+              print(f"Total valid configs written to subtest.txt: {len(alive)}")
+
+          except Exception as e:
+              print(f"Error occurred: {e}")
+              raise
+          '
+
+      - name: Commit and Push Changes to subtest.txt
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add subtest.txt
+          git diff --staged --quiet || (git commit -m "Auto update subtest.txt (safe resolve check)" && git pull --rebase origin main && git push)
