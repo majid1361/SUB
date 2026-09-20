@@ -1,4 +1,4 @@
-name: Test Sub Configs (Safe Host Resolve Only)
+name: Test Sub Configs (Safe Host Resolve + Limit 50)
 
 on:
   schedule:
@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Fetch, Filter Mask, Resolve Hostnames, Write to subtest.txt
+      - name: Fetch, Filter, Resolve and Limit to 50 Configs
         run: |
           python -c '
           import urllib.request
@@ -29,6 +29,9 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor
 
           SOURCE_URL = "https://raw.githubusercontent.com/majid1361/StealthyStream/main/vless_trojan_filtered.txt"
+          
+          # سقف تعداد کانفیگ نهایی سابسکریپشن
+          MAX_FINAL_CONFIGS = 50
 
           def extract_host(cfg: str):
               try:
@@ -42,14 +45,14 @@ jobs:
               if not host:
                   return False
 
-              # بررسی صحت آی‌پی
+              # بررسی آی‌پی
               try:
                   ipaddress.ip_address(host)
                   return True
               except Exception:
                   pass
 
-              # تست رزولوشن DNS دامنه
+              # بررسی رزولوشن دامنه
               try:
                   socket.getaddrinfo(host, None)
                   return True
@@ -67,10 +70,11 @@ jobs:
 
               lines = content.splitlines()
               filtered = []
+              seen_configs = set()
 
               for line in lines:
                   cfg = line.strip()
-                  if not cfg:
+                  if not cfg or cfg in seen_configs:
                       continue
 
                   low = cfg.lower()
@@ -79,9 +83,10 @@ jobs:
                   if "finalmask" in low or "%22fragment%22" in low:
                       continue
 
+                  seen_configs.add(cfg)
                   filtered.append(cfg)
 
-              print(f"Configs fetched and mask-filtered: {len(filtered)}")
+              print(f"Unique configs fetched: {len(filtered)}")
 
               def check_cfg(cfg):
                   h = extract_host(cfg)
@@ -93,13 +98,16 @@ jobs:
                       if res:
                           alive.append(res)
 
-              with open("subtest.txt", "w", encoding="utf-8") as f:
-                  f.write("\n".join(alive) + "\n")
+              # اعمال سقف دقیق ۵۰ کانفیگ
+              final_configs = alive[:MAX_FINAL_CONFIGS]
 
-              print(f"Total valid configs written to subtest.txt: {len(alive)}")
+              with open("subtest.txt", "w", encoding="utf-8") as f:
+                  f.write("\n".join(final_configs) + "\n")
+
+              print(f"Total verified alive: {len(alive)} -> Saved limited: {len(final_configs)}")
 
           except Exception as e:
-              print(f"Error occurred: {e}")
+              print(f"Error: {e}")
               raise
           '
 
@@ -108,4 +116,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add subtest.txt
-          git diff --staged --quiet || (git commit -m "Auto update subtest.txt (safe resolve check)" && git pull --rebase origin main && git push)
+          git diff --staged --quiet || (git commit -m "Auto update subtest.txt (limit to 50)" && git pull --rebase origin main && git push)
