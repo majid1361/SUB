@@ -711,7 +711,7 @@
     if (selectedSubIndexes.size === 0) return;
     
     const msg = "آیا از حذف " + selectedSubIndexes.size + " کانفیگ انتخاب‌شده و اعمال در گیت‌هاب اطمینان دارید؟";
-    if (!confirm(msg)) return;
+    if (!(await showConfirmModal('تایید حذف', msg))) return;
 
     const configs = getSubConfigs();
     const configsToDelete = new Set([...selectedSubIndexes].map(i => configs[i]));
@@ -1163,6 +1163,56 @@
           .catch((err) => console.log('SW Registration Error:', err));
       });
     }
+    // تابع نمایش مودال تایید سفارشی
+function showConfirmModal(title, message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirmModal');
+        const titleEl = document.getElementById('confirmTitle');
+        const msgEl = document.getElementById('confirmMessage');
+        const okBtn = document.getElementById('confirmOk');
+        const cancelBtn = document.getElementById('confirmCancel');
+        
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        const cleanup = (result) => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            okBtn.replaceWith(okBtn.cloneNode(true));
+            cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+            resolve(result);
+        };
+        
+        document.getElementById('confirmOk').addEventListener('click', () => cleanup(true));
+        document.getElementById('confirmCancel').addEventListener('click', () => cleanup(false));
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) cleanup(false);
+        }, { once: true });
+    });
+}
   </script>
+  <div id="confirmModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-slideIn">
+        <div class="flex items-start gap-4">
+            <div id="confirmIcon" class="shrink-0 w-11 h-11 rounded-full bg-red-500/15 text-red-500 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-8.02 13.9A2 2 0 004 21h16a2 2 0 001.73-3.24l-8.02-13.9a2 2 0 00-3.42 0z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h3 id="confirmTitle" class="text-lg font-bold text-white"></h3>
+                <p id="confirmMessage" class="mt-1 text-sm text-slate-400 leading-relaxed"></p>
+            </div>
+        </div>
+        <div class="mt-6 flex gap-3">
+            <button id="confirmCancel" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors">انصراف</button>
+            <button id="confirmOk" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-sm font-bold transition-colors">تایید</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
