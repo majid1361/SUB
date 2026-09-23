@@ -93,35 +93,41 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons -->
-          <div class="flex flex-wrap items-center justify-center gap-3 my-4">
-      <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ (JSON)">
-        <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-      </button>
-      <!-- دکمه جدید ری‌استور -->
-      <button onclick="document.getElementById('restoreFile').click()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="بازیابی بک‌آپ (Restore)">
-        <i data-lucide="upload" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-      </button>
-      <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="restoreBackup(this)">
-      <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="همگام‌سازی">
-        <i data-lucide="refresh-cw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-      </button>
-        <!-- دکمه مدیریت کانفیگ‌ها همراه با عدد تعداد کانفیگ -->
-        <button onclick="openSubModal()" class="relative bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-amber-400 hover:text-amber-300 transition shadow" title="مدیریت کانفیگ‌ها (sub.txt)">
-          <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-          <span id="subBadge" class="absolute -top-1.5 -left-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center shadow">0</span>
-        </button>
-        <!-- دکمه تنظیمات -->
-        <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition shadow" title="تنظیمات اتصال گیت‌هاب">
-          <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-        </button>
-                <!-- دکمه تنظیمات هیدیفای -->
-        <button onclick="generateSettingsQR()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 transition shadow" title="تنظیمات هیدیفای">
-            <i data-lucide="sliders" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-        </button>
-
-      </div>
+      <!-- جایگزین کاملِ بخش هدر -->
+<div class="glass-header rounded-2xl p-4 shadow-xl flex flex-col gap-4">
+    
+    <!-- ردیف اول: لوگو و عنوان -->
+    <div class="flex items-center gap-3">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="w-10 h-10 invert" alt="Logo">
+        <h1 class="text-xl font-black text-white tracking-wider">SUB Users</h1>
     </div>
+
+    <!-- ردیف دوم: دکمه‌ها در یک خط صاف و افقی -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <!-- دکمه‌ها رو اینجا قرار بده -->
+        <button onclick="exportBackupJSON()" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-sky-400 shrink-0" title="دانلود بک‌آپ">
+            <i data-lucide="download" class="w-5 h-5"></i>
+        </button>
+        <button onclick="document.getElementById('restoreFile').click()" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-emerald-400 shrink-0" title="ری‌استور">
+            <i data-lucide="upload" class="w-5 h-5"></i>
+        </button>
+        <input type="file" id="restoreFile" class="hidden" onchange="restoreBackup(this)">
+        
+        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-emerald-400 shrink-0" title="همگام‌سازی">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+        </button>
+        <button onclick="openSubModal()" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-amber-400 shrink-0 relative" title="مدیریت">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            <span id="subBadge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[10px] rounded-full px-1">0</span>
+        </button>
+        <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-blue-400 shrink-0" title="تنظیمات">
+            <i data-lucide="key" class="w-5 h-5"></i>
+        </button>
+        <button onclick="generateSettingsQR()" class="bg-slate-800 p-2 rounded-xl border border-slate-700 text-indigo-400 shrink-0" title="تنظیمات هیدفای">
+            <i data-lucide="sliders" class="w-5 h-5"></i>
+        </button>
+    </div>
+</div>
 
     <!-- Quick Stats Bar -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
