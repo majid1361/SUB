@@ -85,13 +85,15 @@
   
   <!-- سمت چپ: لوگو و عنوان -->
   <!-- کد قدیمی: <div class="flex items-center gap-3 shrink-0"> -->
-<div class="flex items-center gap-3 shrink-0 w-full justify-start">
+<!-- بخش لوگو و عنوان (w-full رو حذف کردیم تا فقط به اندازه خودش جا بگیره) -->
+<div class="flex items-center gap-3 shrink-0">
     <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="w-10 h-10 object-contain invert" alt="Logo">
     <h1 class="text-xl font-black text-white tracking-wider">SUB Users</h1>
 </div>
 
-  <!-- سمت راست: دکمه‌ها (در دسکتاپ کنار هم، در موبایل اسکرول‌خور) -->
-  <div class="flex items-center gap-2 overflow-x-auto w-full justify-start md:justify-end">
+<!-- بخش دکمه‌ها (فقط توی موبایل w-full باشه که اسکرول بخوره، توی دسکتاپ w-auto باشه) -->
+<div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto justify-start md:justify-end pb-1 no-scrollbar">
+
     
     <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-sky-400 shrink-0 shadow hover:bg-slate-700 transition-all" title="دانلود بک‌آپ">
       <i data-lucide="download" class="w-5 h-5"></i>
