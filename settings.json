@@ -1,5 +1,5 @@
 {
-  "region": "ir",
+  "region": "other",
   "balancer-strategy": "consistent-hashing",
   "block-ads": false,
   "use-xray-core-when-possible": false,
