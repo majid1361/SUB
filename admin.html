@@ -1102,22 +1102,23 @@
     }
         // QR Code تنظیمات هیدیفای
     function generateSettingsQR() {
-        const settingsUrl = `${window.location.origin}/settings.json`;
-        const qrContainer = document.getElementById('qrcode');
-        qrContainer.innerHTML = '';
-        
-        new QRCode(qrContainer, {
-            text: settingsUrl,
-            width: 200,
-            height: 200,
-            colorDark: "#0f172a",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.M
-        });
-        
-        document.getElementById('qrModalTitle').textContent = "تنظیمات بهینه‌سازی (settings.json)";
-        toggleModal('qrModal');
-    }
+    // لینک مستقیم فایل خام از گیت‌هاب
+    const settingsUrl = "https://raw.githubusercontent.com/majid1361/SUB/main/settings.json";
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+
+    new QRCode(qrContainer, {
+        text: settingsUrl,
+        width: 200,
+        height: 200,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
+
+    document.getElementById('qrModalTitle').textContent = "تنظیمات بهینه‌سازی (settings.json)";
+    toggleModal('qrModal');
+}
 
   </script>
 
