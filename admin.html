@@ -111,6 +111,11 @@
         <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition shadow" title="تنظیمات اتصال گیت‌هاب">
           <i data-lucide="key" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </button>
+                <!-- دکمه تنظیمات هیدیفای -->
+        <button onclick="generateSettingsQR()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 transition shadow" title="تنظیمات هیدیفای">
+            <i data-lucide="sliders" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </button>
+
       </div>
     </div>
 
@@ -1095,6 +1100,25 @@
       loadUsersFromGitHub(true);
       fetchSubConfigCountSilently();
     }
+        // QR Code تنظیمات هیدیفای
+    function generateSettingsQR() {
+        const settingsUrl = `${window.location.origin}/settings.json`;
+        const qrContainer = document.getElementById('qrcode');
+        qrContainer.innerHTML = '';
+        
+        new QRCode(qrContainer, {
+            text: settingsUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#0f172a",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        
+        document.getElementById('qrModalTitle').textContent = "تنظیمات بهینه‌سازی (settings.json)";
+        toggleModal('qrModal');
+    }
+
   </script>
 
   <!-- Service Worker Registration for PWA -->
