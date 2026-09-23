@@ -84,13 +84,14 @@
 <div class="glass-header rounded-2xl p-4 sm:p-5 shadow-xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
   
   <!-- سمت چپ: لوگو و عنوان -->
-  <div class="flex items-center gap-3 shrink-0">
-    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="w-10 h-10 object-contain invert" alt="Logo">
+  <!-- کد قدیمی: <div class="flex items-center gap-3 shrink-0"> -->
+<div class="flex items-center gap-3 shrink-0 w-full justify-end">
+    <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="w-10 h-10 object-contain invert" alt="Logo">
     <h1 class="text-xl font-black text-white tracking-wider">SUB Users</h1>
-  </div>
+</div>
 
   <!-- سمت راست: دکمه‌ها (در دسکتاپ کنار هم، در موبایل اسکرول‌خور) -->
-  <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto justify-start md:justify-end pb-1 no-scrollbar">
+  <div class="flex items-center gap-2 overflow-x-auto w-full justify-center md:justify-end pb-1 no-scrollbar">
     
     <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-sky-400 shrink-0 shadow hover:bg-slate-700 transition-all" title="دانلود بک‌آپ">
       <i data-lucide="download" class="w-5 h-5"></i>
@@ -107,7 +108,7 @@
 
     <button onclick="openSubModal()" class="relative bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-amber-400 shrink-0 shadow hover:bg-slate-700 transition-all" title="مدیریت">
       <i data-lucide="zap" class="w-5 h-5"></i>
-      <span id="subBadge" class="absolute top-0.8 -right-0.5 bg-amber-500 text-slate-950 text-[10px] rounded-full px-1 font-bold">0</span>
+      <span id="subBadge" class="absolute top-0.6 -right-0.5 bg-amber-500 text-slate-950 text-[10px] rounded-full px-1 font-bold">0</span>
     </button>
 
     <button onclick="toggleModal('configModal')" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-blue-400 shrink-0 shadow hover:bg-slate-700 transition-all" title="تنظیمات">
