@@ -95,13 +95,18 @@
       </div>
 
       <!-- Header Action Buttons -->
-      <div class="flex items-center gap-2">
-        <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ (JSON)">
-          <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-        </button>
-        <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="همگام‌سازی">
-          <i data-lucide="refresh-cw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-        </button>
+          <div class="flex items-center gap-2">
+      <button onclick="exportBackupJSON()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-sky-400 hover:text-sky-300 transition shadow" title="دانلود بک‌آپ (JSON)">
+        <i data-lucide="download" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
+      <!-- دکمه جدید ری‌استور -->
+      <button onclick="document.getElementById('restoreFile').click()" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="بازیابی بک‌آپ (Restore)">
+        <i data-lucide="upload" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
+      <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="restoreBackup(this)">
+      <button onclick="loadUsersFromGitHub(true)" class="bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition shadow" title="همگام‌سازی">
+        <i data-lucide="refresh-cw" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
         <!-- دکمه مدیریت کانفیگ‌ها همراه با عدد تعداد کانفیگ -->
         <button onclick="openSubModal()" class="relative bg-slate-800 p-2.5 rounded-xl border border-slate-700 hover:bg-slate-700 text-amber-400 hover:text-amber-300 transition shadow" title="مدیریت کانفیگ‌ها (sub.txt)">
           <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
@@ -1081,6 +1086,39 @@
       downloadAnchor.remove();
       showToast('فایل بک‌آپ دانلود شد');
     }
+    function restoreBackup(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const parsedData = JSON.parse(e.target.result);
+      if (typeof parsedData !== 'object' || Array.isArray(parsedData) || parsedData === null) {
+        throw new Error('فرمت فایل معتبر نیست');
+      }
+
+      if (!confirm('آیا از بازگردانی این فایل اطمینان دارید؟ تمام کاربران فعلی با اطلاعات فایل بک‌آپ جایگزین خواهند شد.')) {
+        input.value = '';
+        return;
+      }
+
+      usersData = parsedData;
+      renderTable();
+      updateStats();
+      
+      const synced = await syncWithGitHub();
+      if (synced) {
+        showToast('اطلاعات با موفقیت بازیابی و در گیت‌هاب ثبت شد');
+      }
+    } catch (err) {
+      showToast('خطا در خواندن فایل بک‌آپ: ' + err.message, 'error');
+    } finally {
+      input.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
 
     function saveConfig() {
       const o = document.getElementById('ghOwner').value.trim();
