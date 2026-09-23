@@ -1094,22 +1094,19 @@
   reader.onload = async function(e) {
     try {
       const parsedData = JSON.parse(e.target.result);
-      if (typeof parsedData !== 'object' || Array.isArray(parsedData) || parsedData === null) {
-        throw new Error('فرمت فایل معتبر نیست');
-      }
-
-      if (!confirm('آیا از بازگردانی این فایل اطمینان دارید؟ تمام کاربران فعلی با اطلاعات فایل بک‌آپ جایگزین خواهند شد.')) {
-        input.value = '';
-        return;
-      }
-
-      usersData = parsedData;
-      renderTable();
-      updateStats();
       
-      const synced = await syncWithGitHub();
-      if (synced) {
-        showToast('اطلاعات با موفقیت بازیابی و در گیت‌هاب ثبت شد');
+      if (!parsedData || typeof parsedData !== 'object' || Array.isArray(parsedData)) {
+        throw new Error('فرمت فایل JSON نامعتبر است');
+      }
+
+      if (confirm('آیا از بازگردانی این فایل اطمینان دارید؟ اطلاعات فعلی با فایل بک‌آپ جایگزین خواهند شد.')) {
+        usersData = parsedData;
+        renderUsers();
+        
+        const synced = await syncWithGitHub();
+        if (synced) {
+          showToast('اطلاعات با موفقیت بازیابی و در گیت‌هاب ثبت شد');
+        }
       }
     } catch (err) {
       showToast('خطا در خواندن فایل بک‌آپ: ' + err.message, 'error');
