@@ -992,7 +992,7 @@
     }
 
     async function deleteUser(u) {
-      if (!confirm(`آیا از حذف کاربر «${u}» مطمئن هستید؟`)) return;
+      if (!(await showConfirmModal('حذف کاربر', `آیا از حذف کاربر «${u}» مطمئن هستید؟`))) return;
       const backupDate = usersData[u];
       delete usersData[u];
       const ok = await syncWithGitHub();
