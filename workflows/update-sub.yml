@@ -1,0 +1,37 @@
+name: Update sub.txt from StealthyStream
+
+on:
+  schedule:
+    - cron: "0 * * * *" # هر ساعت، در دقیقهٔ صفر (UTC)
+  workflow_dispatch: # اجرای دستی از تب Actions
+
+permissions:
+  contents: write
+
+jobs:
+  update-sub:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout SUB repository
+        uses: actions/checkout@v4
+
+      - name: Download source and replace sub.txt
+        run: |
+          curl -fsSL \
+            "https://raw.githubusercontent.com/majid1361/StealthyStream/main/vless_trojan_filtered.txt" \
+            -o sub.txt
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add sub.txt
+
+          if git diff --cached --quiet; then
+            echo "sub.txt تغییری نکرده؛ کامیتی لازم نیست."
+          else
+            git commit -m "Update sub.txt from StealthyStream [skip ci]"
+            git push
+          fi
