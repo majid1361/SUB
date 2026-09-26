@@ -24,3 +24,11 @@ vless://e4514801-0d5a-42ba-869f-39bd605aef9e@52.56.136.35:22222?security=&encryp
 vless://db45b571-47cc-44ef-bbf6-dfd3d411f2d8@chatgpt.com:80?path=%2FCooonfigCooonfigCooonfigCooonfigCooonfig&security=&encryption=none&host=msjsi.azazilvpn.sbs.&type=ws#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-93
 vless://e4514801-0d5a-42ba-869f-39bd605aef9e@15.237.141.142:22223?security=&encryption=none&headerType=&type=tcp#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-333
 vless://4b87c68d-762f-4969-9680-36bfb9daa858@172.67.221.237:2052?path=%2Fwss&security=&encryption=none&host=nexomob.netvia.ir&type=httpupgrade#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-236
+vless://e4514801-0d5a-42ba-869f-39bd605aef9e@18.169.206.105:22223?security=&encryption=none&headerType=&type=tcp#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-673
+vless://9ccf8612-5e16-4b16-834e-4df5fe3611cd@a2.arshia-nova.ir:443?path=%2F&security=tls&alpn=h2&encryption=none&insecure=0&host=c12.com&fp=firefox&type=ws&allowInsecure=0&sni=ssl.fastly.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-624
+vless://e4514801-0d5a-42ba-869f-39bd605aef9e@35.181.245.210:22222?security=&encryption=none&headerType=&type=tcp#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-623
+vless://4b87c68d-762f-4969-9680-36bfb9daa858@172.67.221.237:2052?path=%2Fwss&security=&encryption=none&host=nexomob.netvia.ir&type=httpupgrade#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-822
+vless://XlnTeam-36@199.232.78.160:443?path=%2F&security=tls&alpn=http%2F1.1&encryption=none&insecure=0&host=Appxdn.global.ssl.fastly.net&fp=chrome&type=ws&allowInsecure=0&sni=ssl.fastly.com#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-652
+vless://af5eac96-e478-488a-bc8c-45269d7e8847@5.253.29.16:40443?security=reality&encryption=none&pbk=g77ZJbm18JEotapmVRjaXi133MzkbhkU2lxhVeXx8zw&host=%2F%3FTELEGRAM--MARAMBASHI--MARAMBASHI&headerType=none&fp=qq&type=tcp&flow=xtls-rprx-vision&sni=deepl.com&sid=68a8#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-1031
+vless://e4514801-0d5a-42ba-869f-39bd605aef9e@35.181.245.210:22223?security=&encryption=none&headerType=&type=tcp#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-665
+vless://9e4f675b-d6bf-42d1-be55-389f622783af@62.152.58.182:443?mode=gun&security=reality&encryption=none&pbk=JBKJlzuJH1YzDHAoz28wEKbzWTGpDpKjgtSq0oT0a0k&fp=safari&spx=%2F&type=grpc&sni=360.yandex.ru&sid=27e53bbcab7593d7#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-930
