@@ -1,1 +1,1 @@
-https://github.com/majid1361/SUB/blob/main/config01.npvt
+https://raw.githubusercontent.com/majid1361/SUB/refs/heads/main/config01.npvt
