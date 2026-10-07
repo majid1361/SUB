@@ -1,8 +1,1 @@
-vless://b940be1b-3998-45d2-bf7b-06e7b6c4987a@162.159.251.165:443?path=%2F%3Fed%3D2560&security=tls&encryption=none&insecure=0&host=c379b284.vs-494.pages.dev&fp=chrome&type=ws&allowInsecure=0&sni=c379b284.vs-494.pages.dev#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6458
-vless://b940be1b-3998-45d2-bf7b-06e7b6c4987a@russia.com:443?path=%2F%3Fed%3D2560&security=tls&encryption=none&insecure=0&host=c379b284.vs-494.pages.dev&fp=chrome&type=ws&allowInsecure=0&sni=c379b284.vs-494.pages.dev#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6442
-vless://250865f0-4a0f-4e2e-8d14-4c39a25d0bef@g2de.velnix-services.ir:1080?security=reality&encryption=none&pbk=qmCIBP5Y6Pu7oxY--0sOXglNvHV9byxo2cyVsfAqUiI&headerType=none&fp=chrome&type=tcp&sni=www6.gameservice-iramn3.com&sid=307eb35dbf3a5385#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6344
-vless://8fc806fa-350b-4548-937a-2bf35f7fe7eb@91.208.92.210:443?security=reality&encryption=none&pbk=_KTsOFhGnC0W28ZqO8_FApozMp7tJ9cVBTLKLAA_OR0&headerType=none&fp=qq&type=tcp&flow=xtls-rprx-vision&sni=uk1.sky-vault.top&sid=ae64c9b46bff174a#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6445
-vless://55a2940a-ae07-40b4-ab32-4d3e0617731f@es4.h1cloud.net:25047?security=reality&encryption=none&pbk=opG0oNW-PMHi8V4E0101eEqOqPlZVKCuRkF6dcWeqBU&headerType=none&fp=chrome&type=tcp&sni=www.apple.com&sid=8b7227d48365dda9#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6513
-vless://250865f0-4a0f-4e2e-8d14-4c39a25d0bef@ststictr.hamiramkemax.ir:1081?security=reality&encryption=none&pbk=_UlBf1BRa52KM89xxvfbSHuLZWrvWuGuhvbsL3gx01A&host=www12.gameservice-iramn3.com&headerType=none&fp=edge&type=tcp&sni=www12.gameservice-iramn3.com&sid=daa22fbb023ab4a2#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6347
-vless://6ead3f4c-023f-4322-b5c4-ac4e327d259d@199.232.78.159:443?path=%2F%3F&security=tls&encryption=none&insecure=0&host=pannn1.global.ssl.fastly.net&type=ws&allowInsecure=0&sni=default.ssl.fastly.net#%E2%99%BE%EF%B8%8FULTRA-TITAN-SRV-6433
-https://raw.githubusercontent.com/majid1361/SUB/refs/heads/main/config01.npvt
+
